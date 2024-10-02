@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_10_01_200953) do
+ActiveRecord::Schema[8.0].define(version: 2024_10_02_103608) do
   create_table "accesses", force: :cascade do |t|
     t.integer "bucket_id", null: false
     t.integer "user_id", null: false
@@ -148,4 +148,9 @@ ActiveRecord::Schema[8.0].define(version: 2024_10_01_200953) do
   add_foreign_key "taggings", "bubbles"
   add_foreign_key "taggings", "tags"
   add_foreign_key "users", "accounts"
+
+  # Virtual tables defined in this database.
+  # Note that virtual tables may not work with other database engines. Be careful if changing database.
+  create_virtual_table "bubbles_search_index", "fts5", ["title"]
+  create_virtual_table "comments_search_index", "fts5", ["body"]
 end
