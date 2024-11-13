@@ -3,4 +3,4 @@ jz_assignments:
   tags: mobile
   assignees: jz
   fields: <%= { indexed_by: :most_discussed }.to_json %>
-  params_digest: <%= Digest::MD5.hexdigest({ indexed_by: :most_discussed, tag_ids: [ ActiveRecord::FixtureSet.identify(:mobile) ], assignee_ids: [ ActiveRecord::FixtureSet.identify(:jz) ] }.to_json) %>
+  params_digest: <%= Filter.digest_params({ indexed_by: :most_discussed, tag_ids: [ ActiveRecord::FixtureSet.identify(:mobile) ], assignee_ids: [ ActiveRecord::FixtureSet.identify(:jz) ] }) %>

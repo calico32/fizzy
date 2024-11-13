@@ -3,10 +3,10 @@ require "test_helper"
 class FilterTest < ActiveSupport::TestCase
   test "persistence" do
     assert_difference "users(:david).filters.count", +1 do
-      filter = users(:david).filters.persist!(indexed_by: "most_boosted")
+      filter = users(:david).filters.persist!(indexed_by: "most_boosted", tag_ids: [ tags(:mobile).id ])
 
       assert_changes "filter.reload.updated_at" do
-        assert_equal filter, users(:david).filters.persist!(indexed_by: "most_boosted")
+        assert_equal filter, users(:david).filters.persist!(indexed_by: "most_boosted", tag_ids: [ tags(:mobile).id ])
       end
     end
   end
