@@ -23,47 +23,8 @@
       </label>
     <% end %>
 
-    <%= render "bubbles/sidebar/assignment", bubble: @bubble %>
-    <%= render "bubbles/sidebar/tag", bubble: @bubble %>
-
-    <%= form_with url: "/", data: { controller: "form" } do |form| %>
-      <label class="btn full-width justify-start borderless">
-        <%= image_tag "person.svg", aria: { hidden: true }, size: 24 %>
-        <span>Assign to…</span>
-        <%= form.collection_select :assignee_id, @bubble.bucket.users.active, :id, :name, { prompt: "Assign to…", selected: @bubble.assignees.pluck(:id) },
-              class: "input input--hidden txt-medium",
-              data: { action: "change->form#submit click->form#showPicker" } %>
-      </label>
-    <% end %>
-
-    <div class="position-relative" data-controller="dialog" data-action="keydown.esc->dialog#close">
-      <button class="btn full-width justify-start borderless" data-action="dialog#toggle">
-        <%= image_tag "tag.svg", aria: { hidden: true }, size: 24 %>
-        <span>Tags</span>
-      </button>
-
-      <dialog class="tag-picker panel fill-white shadow gap-half align-center" data-dialog-target="dialog" data-action="keydown.esc->dialog#close click@document->dialog#closeOnClickOutside">
-        <%= image_tag "tag.svg", aria: { hidden: true }, size: 24 %>
-
-        <%= form_with model: Tag.new, url: bucket_bubble_tags_path(@bubble.bucket, @bubble), class: "min-width flex-item-grow", data: { turbo_frame: "_top" } do |form| %>
-          <%= form.text_field :title, class: "input", autofocus: "on", list: "tags-list" %>
-          <%= form.submit "Create Tag", hidden: true %>
-
-          <datalist id="tags-list">
-            <%= Current.account.tags.each do |tag| %>
-              <option value="<%= tag.title %>"></option>
-            <% end %>
-          </datalist>
-        <% end %>
-
-        <form method="dialog">
-          <button class="btn txt-small" title="Close (esc)">
-            <%= image_tag "remove.svg", aria: { hidden: true }, size: 24 %>
-            <span class="for-screen-reader">Close</span>
-          </button>
-        </form>
-      </dialog>
-    </div>
+    <%= render "bubbles/sidebar/assignment", bubble: @bubble, users: @bucket.users.active %>
+    <%= render "bubbles/sidebar/tag", bubble: @bubble, tags: Current.account.tags %>
 
     <% if @bubble.image.attached? %>
       <%= button_to bucket_bubble_image_path(@bubble.bucket, @bubble), method: :delete, class: "btn full-width justify-start borderless" do %>

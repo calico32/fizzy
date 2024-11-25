@@ -6,8 +6,6 @@ class Tag < ApplicationRecord
   has_many :taggings, dependent: :destroy
   has_many :bubbles, through: :taggings
 
-  scope :search, ->(query) { where "title LIKE ?", "%#{query}%" }
-
   def hashtag
     "#" + title
   end

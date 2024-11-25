@@ -24,8 +24,6 @@ Rails.application.routes.draw do
         resource :pop
         resource :stage_picker
         resources :stagings
-        resources :tags
-        resources :users
       end
 
       namespace :assignments, as: :assignment do

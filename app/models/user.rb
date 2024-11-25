@@ -23,7 +23,6 @@ class User < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :alphabetically, -> { order("LOWER(name)") }
-  scope :search, ->(query) { where "name LIKE ?", "%#{query}%" }
 
   def initials
     name.to_s.scan(/\b\p{L}/).join.upcase
