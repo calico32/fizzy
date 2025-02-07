@@ -34,6 +34,7 @@ Rails.application.routes.draw do
         resource :image
         resource :pop
         resource :publish
+        resource :recover
         resource :stage_picker
         resources :stagings
       end

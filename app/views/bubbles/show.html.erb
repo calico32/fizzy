@@ -1,6 +1,15 @@
 <% @page_title = @bubble.title %>
 
 <% content_for :header do %>
+  <% if @bubble.creating? && (abandoned = Bubble.recently_abandoned_creation(Current.user)) && abandoned != @bubble %>
+    <div class="flex align-center gap-half fill-selected justify-center border-block margin-block-end"
+          style="--border-color: var(--color-selected-dark); --border-style: dashed; view-transition-name: draft-banner;">
+      You have an unsaved bubble. Would you like to continue where you left off?
+      <%= button_to bucket_bubble_recover_path(@bubble.bucket, @bubble), class: "btn txt-small btn--link" do %>
+        <span>Yes please!</span>
+      <% end %>
+    </div>
+  <% end %>
   <% if @bubble.drafted? %>
     <div class="flex align-center gap-half fill-selected justify-center border-block margin-block-end"
           style="--border-color: var(--color-selected-dark); --border-style: dashed; view-transition-name: draft-banner;">
