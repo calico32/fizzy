@@ -15,7 +15,6 @@ class EnactTenanting
     693169860 => "37s", # Know It All: Issues
     693169862 => "37s", # Active Record Tenanting
     693169863 => "37s", # Cycle 1: BC4 Hilltop View
-    693169864 => "37s", # Cycle1: [HEY] ContentFitler pipeline rewrite
     693169865 => "37s", # [BC iOS] Search refactor
     693169867 => "37s", # File icons refactor
     693169870 => "37s", # HEY Preload Replies
