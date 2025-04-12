@@ -11,12 +11,7 @@ class Comment < ApplicationRecord
   scope :belonging_to_card, ->(card) { joins(:message).where(messages: { card_id: card.id }) }
 
   before_destroy :cleanup_events
-
-  # Called when a new comment is captured as a message during creation
-  def created_via_message
-    card.watch_by creator
-    card.track_event :commented, comment_id: id
-  end
+  after_create_commit :creator_watches_card, :track_commenting_on_card
 
   def to_partial_path
     "cards/#{super}"
@@ -27,5 +22,13 @@ class Comment < ApplicationRecord
     def cleanup_events
       # Delete events that reference directly in particulars
       Event.where(particulars: { comment_id: id }).destroy_all
+    end
+
+    def creator_watches_card
+      card.watch_by creator
+    end
+
+    def track_commenting_on_card
+      card.track_event :commented, comment_id: id
     end
 end
