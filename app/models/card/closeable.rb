@@ -2,7 +2,7 @@ module Card::Closeable
   extend ActiveSupport::Concern
 
   AUTO_CLOSE_AFTER = 30.days
-  AUTO_CLOSE_REMINDER = 7.days
+  AUTO_CLOSE_REMINDER = 23.days
 
   included do
     has_one :closure, dependent: :destroy

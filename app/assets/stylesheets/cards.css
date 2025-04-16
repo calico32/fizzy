@@ -214,14 +214,14 @@
   }
 
   .card__badge {
-    --size: 5cqi;
+    --size: 4cqi;
 
-    border: 1px solid currentColor;
+    border: 1.5px solid currentColor;
     block-size: var(--size);
     border-radius: 50%;
     color: var(--color-negative);
     container-type: inline-size;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: bold;
     inset: 50% auto auto -0.5ch;
     inline-size: var(--size);
@@ -233,7 +233,8 @@
     span {
       display: grid;
       inset: 0;
-      font-size: 45cqi;
+      font-size: 40cqi;
+      font-weight: 900;
       place-content: center;
       position: absolute;
       text-align: center;
@@ -241,7 +242,7 @@
 
     svg {
       display: block;
-      letter-spacing: 0.25ch;
+      letter-spacing: 0.125ch;
       text-transform: uppercase;
     }
   }
