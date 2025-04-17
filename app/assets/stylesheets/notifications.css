@@ -95,6 +95,12 @@
   }
 }
 
+.notifications__empty-message {
+  .notificiations-list:has(.notification) & {
+    display: none;
+  }
+}
+
 .notificiations-list--read {
   display: none;
 
