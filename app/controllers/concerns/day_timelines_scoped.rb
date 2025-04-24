@@ -1,4 +1,4 @@
-module DaysTimelineScoped
+module DayTimelinesScoped
   extend ActiveSupport::Concern
 
   included do

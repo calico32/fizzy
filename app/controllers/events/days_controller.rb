@@ -1,5 +1,5 @@
 class Events::DaysController < ApplicationController
-  include DaysTimelineScoped
+  include DayTimelinesScoped
 
   def index
   end
