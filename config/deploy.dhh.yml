@@ -5,3 +5,5 @@ servers:
   jobs:
     hosts:
       - test-1
+
+proxy: false
