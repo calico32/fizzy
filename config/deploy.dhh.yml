@@ -2,13 +2,42 @@ servers:
   web:
     hosts:
       - test-1
-      - test-2
-      - test-3
   jobs:
     hosts:
       - test-1
+  web-replica:
+    hosts:
+      - test-2
+      - test-3
+    proxy: true
+
 env:
   clear:
     ARTENANT: test
 
 proxy: false
+
+accessories:
+  beamer-primary:
+    <<: *beamer-accessory
+    service: beamer-primary
+    cmd: beamer primary --remove-after=1h --dir=/storage
+    port: 5000:80
+    roles:
+      - web
+
+  beamer-replica:
+    <<: *beamer-accessory
+    service: beamer-replica
+    cmd: beamer replica --primary=http://test-1:5000/ --dir=/storage
+    roles:
+      - web-replica
+
+  load-balancer:
+    image: basecamp/kamal-proxy:lb
+    roles:
+      - web
+    options:
+      publish:
+        - 80:80
+        - 443:443
