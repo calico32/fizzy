@@ -12,7 +12,7 @@ class Command::Composite < Command
 
   def undo
     ApplicationRecord.transaction do
-      undoable_commands.reverse.each(&:undo)
+      undoable_commands.collect { it.undo }
     end
   end
 
@@ -40,6 +40,6 @@ class Command::Composite < Command
     end
 
     def undoable_commands
-      @undoable_commands ||= commands.filter(&:undoable?)
+      @undoable_commands ||= commands.filter(&:undoable?).reverse
     end
 end
