@@ -5,6 +5,30 @@ class HtmlHelperTest < ActionView::TestCase
     assert_equal_html \
       %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a></p>),
       format_html("<p>Check this: https://example.com</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com/" rel="noreferrer">https://example.com/</a></p>),
+      format_html("<p>Check this: https://example.com/</p>")
+  end
+
+  test "does not include punctuation in URL autolinking" do
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>!</p>),
+      format_html("<p>Check this: https://example.com!</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>.</p>),
+      format_html("<p>Check this: https://example.com.</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>?</p>),
+      format_html("<p>Check this: https://example.com?</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>,</p>),
+      format_html("<p>Check this: https://example.com,</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>:</p>),
+      format_html("<p>Check this: https://example.com:</p>")
+    assert_equal_html \
+      %(<p>Check this: <a href="https://example.com" rel="noreferrer">https://example.com</a>;</p>),
+      format_html("<p>Check this: https://example.com;</p>")
   end
 
   test "respect existing links" do
