@@ -1,6 +1,0 @@
-<strong class="txt-large">Stalled</strong>
-<label for="closure" class="margin-block-end">Mark cards stalled when there is no activity for…</label>
-
-<%= form_with model: collection, data: { controller: "form" } do |form| %>
-  <%= form.select :stalled_period, collection_stalled_options, {}, { class: "input input--select full-width margin-block-end", data: { action: "change->form#submit" } } %>
-<% end %>

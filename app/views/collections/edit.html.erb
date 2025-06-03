@@ -35,8 +35,7 @@
 
     <%= render "collections/edit/auto_close", collection: @collection %>
 
-    <%= render "collections/edit/stalled", collection: @collection %>
-    <hr class="separator--horizontal full-width margin-block" style="--border-color: var(--color-ink-medium);" aria-hidden="true" />
+    <hr class="separator--horizontal full-width margin-block-end" style="--border-color: var(--color-ink-medium); margin-block-start: auto;" aria-hidden="true" />
 
     <%= form_with model: @collection, class: "txt-align-center", method: :delete do |form| %>
       <%= form.button class: "btn txt-negative borderless txt-small", data: { turbo_confirm: "Are you sure you want to permanently delete this Collection?" } do %>
