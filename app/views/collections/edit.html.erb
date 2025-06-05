@@ -32,10 +32,9 @@
 
   <div class="panel shadow center flex flex-column">
     <%= render "collections/edit/workflows", collection: @collection %>
-
     <%= render "collections/edit/auto_close", collection: @collection %>
 
-    <hr class="separator--horizontal full-width margin-block-end" style="--border-color: var(--color-ink-medium); margin-block-start: auto;" aria-hidden="true" />
+    <hr class="separator--horizontal full-width margin-block-end margin-block-start-double" style="--border-color: var(--color-ink-light);" aria-hidden="true" />
 
     <%= form_with model: @collection, class: "txt-align-center", method: :delete do |form| %>
       <%= form.button class: "btn txt-negative borderless txt-small", data: { turbo_confirm: "Are you sure you want to permanently delete this Collection?" } do %>
