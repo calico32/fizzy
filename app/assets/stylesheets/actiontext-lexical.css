@@ -60,7 +60,6 @@
     margin: var(--block-space-half) 0;
     min-block-size: calc(7lh + var(--block-space));
     outline: 0;
-    padding: var(--block-space-half) var(--inline-space);
 
     * {
       &:first-child {
