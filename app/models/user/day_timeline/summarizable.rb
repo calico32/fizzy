@@ -9,6 +9,10 @@ module User::DayTimeline::Summarizable
     @summary ||= Event::ActivitySummary.for(events)
   end
 
+  def summarizable?
+    !day.today? || events.count >= 10
+  end
+
   def summarize
     Event::ActivitySummary.create_for(events)
   end
