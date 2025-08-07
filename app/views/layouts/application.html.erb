@@ -8,13 +8,7 @@
       <%= yield :header %>
     </header>
 
-    <% if notice = flash[:notice] || flash[:alert] %>
-      <div class="flash" data-controller="element-removal" data-action="animationend->element-removal#remove">
-        <div class="flash__inner shadow">
-          <%= notice %>
-        </div>
-      </div>
-    <% end %>
+    <%= render "layouts/shared/flash" %>
 
     <main id="main">
       <%= yield %>
