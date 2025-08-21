@@ -10,7 +10,7 @@
   <%= form.hidden_field :client_message_id, data: { conversation__composer_target: "clientMessageIdInput" } %>
   <%= form.label :content, "Ask Fizzy", class: "font-weight-black txt-nowrap" %>
   <%= form.text_field :content,
-        autofocus: "on",
+        autofocus: true,
         placeholder: "Ask something…",
         class: "conversation__composer-input input",
         data: {

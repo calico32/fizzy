@@ -68,6 +68,9 @@ export default class extends Controller {
 
   #showItem(element) {
     element.removeAttribute("hidden")
+
+    const autofocusElement = element.querySelector("[autofocus]")
+    autofocusElement?.focus()
   }
 
   #hideItem(element) {
