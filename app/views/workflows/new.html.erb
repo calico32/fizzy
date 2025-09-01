@@ -1,15 +1,8 @@
 <% @page_title = "Create a new Workflow" %>
 
 <% content_for :header do %>
-  <nav class="header">
-    <div class="header__actions header__actions--start">
-      <%= link_to_back fallback_path: workflows_path %>
-    </div>
-
-    <h1 class="header__title"><%= @page_title %></h1>
-
-    <div class="header__actions header__actions--end"></div>
-  </nav>
+  <%= render "filters/menu", user_filtering: @user_filtering %>
+  <h1 class="header__title"><%= @page_title %></h1>
 <% end %>
 
 <%= turbo_frame_tag :workflows do %>

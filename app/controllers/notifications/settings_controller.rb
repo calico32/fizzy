@@ -1,4 +1,5 @@
 class Notifications::SettingsController < ApplicationController
+  include FilterScoped
   before_action :set_settings
 
   def show

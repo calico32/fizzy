@@ -31,16 +31,14 @@
   <% end %>
 
   <%= render "filters/menu", user_filtering: @user_filtering %>
-<% end %>
 
-<header class="header card-perma__collection-header">
   <%= link_to cards_path(collection_ids: [ @card.collection ]), class: "header__title btn borderless txt-large", style: "--btn-padding: 0.25ch 1ch 0.25ch 0.75ch; view-transistion-name: card-collection-title;", data: { controller: "hotkey", action: "keydown.esc@document->hotkey#click" } do %>
     <span class="overflow-ellipsis">
       &larr;
       <strong class="font-black"><%= @card.collection.name %></strong>
     </span>
   <% end %>
-</header>
+<% end %>
 
 <div data-controller="beacon lightbox" data-beacon-url-value="<%= card_reading_url(@card) %>">
   <%= render "cards/container", card: @card %>

@@ -1,4 +1,4 @@
-<% if collection = user_filtering.collections.first %>
+<% if @filter.collection_ids.one? && collection = user_filtering.collections.first %>
   <div class="card card--new">
     <%= button_to collection_cards_path(collection), method: :post, class: "btn" do %>
       <%= icon_tag "add" %>

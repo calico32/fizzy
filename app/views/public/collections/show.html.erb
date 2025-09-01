@@ -13,16 +13,14 @@
 <% end %>
 
 <% content_for :header do %>
-  <div class="flex-column margin-block unpad gap-none">
-    <h1 class="txt-large overflow-ellipsis margin-none">
-      <strong class="font-black"><%= @page_title %></strong>
-    </h1>
+  <h1 class="header__title">
+    <%= @page_title %>
+  </h1>
+<% end %>
 
-    <% if @collection.public_description.present? %>
-      <div class="card__collection-public-description txt-align-center">
-        <%= @collection.public_description %>
-      </div>
-    <% end %>
+<% if @collection.public_description.present? %>
+  <div class="card__collection-public-description txt-align-center center margin-block-end">
+    <%= @collection.public_description %>
   </div>
 <% end %>
 

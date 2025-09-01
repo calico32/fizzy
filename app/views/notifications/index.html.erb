@@ -2,19 +2,15 @@
 <% @hide_footer_frames = true %>
 
 <% content_for :header do %>
-  <nav class="header">
-    <div class="header__actions header__actions--start">
-      <%= link_to_home class: "flex-item-justify-start" %>
-    </div>
+  <%= render "filters/menu", user_filtering: @user_filtering %>
 
-    <h1 class="header__title"><%= @page_title %></h1>
+  <h1 class="header__title"><%= @page_title %></h1>
 
-    <div class="header__actions header__actions--end">
-      <%= link_to notifications_settings_path, class: "btn" do %>
-        <%= icon_tag "settings" %> <span class="for-screen-reader">Notification settings</span>
-      <% end %>
-    </div>
-  </nav>
+  <div class="header__actions header__actions--end">
+    <%= link_to notifications_settings_path, class: "btn" do %>
+      <%= icon_tag "settings" %> <span class="for-screen-reader">Notification settings</span>
+    <% end %>
+  </div>
 <% end %>
 
 <div data-controller="badge navigable-list" data-badge-unread-class="unread" data-action="keydown@document->navigable-list#navigate" data-navigable-list-actionable-items-value="true"

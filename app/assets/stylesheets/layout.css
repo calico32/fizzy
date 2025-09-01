@@ -9,8 +9,6 @@
   }
 
   :where(#main) {
-    --main-padding: clamp(var(--inline-space), 3vw, calc(var(--inline-space) * 3));
-
     inline-size: 100dvw;
     margin-inline: auto;
     max-inline-size: 100dvw;
@@ -32,82 +30,11 @@
 
   :where(#footer) {
     max-inline-size: 100dvw;
-
-    > nav {
-      padding-inline: var(--inline-space);
-    }
-  }
-
-  :where(#header) {
-    max-inline-size: 100dvw;
-    view-transition-name: header;
-
-    > nav {
-      view-transition-name: nav;
-
-      header {
-        h1 {
-          font-weight: 800;
-          margin-block-start: 0.2em;
-          text-align: center;
-
-          a:not([class]) {
-            background-color: transparent;
-            font-weight: inherit;
-            text-decoration: underline;
-          }
-        }
-
-        a:not([class]) {
-          background-color: var(--color-ink-lightest);
-          border-radius: 2em;
-          color: var(--color-ink);
-          font-weight: 500;
-          padding: 0.2em 0.8em;
-          text-decoration: none;
-
-          @media (hover: hover) {
-            &:hover {
-              background-color: var(--color-ink-lighter);
-              text-decoration: none;
-            }
-          }
-        }
-      }
-    }
-
-    > * {
-      align-items: center;
-      display: flex;
-      gap: 1ch;
-      justify-content: center;
-      padding: var(--block-space-half) var(--inline-space);
-    }
-
-    .btn {
-      flex-shrink: 0;
-    }
   }
 
   :is(#header, #footer) {
     @media print {
       display: none;
-    }
-  }
-}
-
-@layer components {
-  .skip-navigation {
-    --left-offset: -999em;
-
-    inset-block-start: 4rem;
-    inset-inline-start: var(--left-offset);
-    position: absolute;
-    white-space: nowrap;
-    z-index: 11;
-
-    &:focus {
-      --left-offset: var(--inline-space);
     }
   }
 }

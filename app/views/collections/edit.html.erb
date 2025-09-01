@@ -1,15 +1,17 @@
-<% @page_title = "Collection Settings" %>
+<% @page_title = "Settings" %>
 
 <% content_for :header do %>
-  <nav class="header">
-    <div class="header__actions header__actions--start">
-      <%= link_to_back fallback_path: cards_path(collection_ids: [ @bbucket ]) %>
-    </div>
+  <%= render "filters/menu", user_filtering: @user_filtering %>
+  <div class="header__actions header__actions--start">
+    <%= link_to cards_path(collection_ids: [ @collection ]), class: "btn borderless txt-medium", data: { controller: "hotkey", action: "keydown.esc@document->hotkey#click" } do %>
+      <span class="overflow-ellipsis">
+        &larr;
+        <strong><%= @collection.name %></strong>
+      </span>
+    <% end %>
+  </div>
 
-    <h1 class="header__title overflow-ellipsis"><%= @page_title %></h1>
-
-    <div class="header__actions header__actions--end"></div>
-  </nav>
+  <h1 class="header__title"><%= @page_title %></h1>
 <% end %>
 
 <section class="settings">

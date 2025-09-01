@@ -2,9 +2,9 @@
   /* Events header
   /* ------------------------------------------------------------------------ */
 
-  .header.events-header {
+  .header--events {
     @media (min-width: 640px) {
-      --header-actions-width: 7rem;
+      --header-actions-width: 7rem !important;
     }
   }
 
@@ -28,7 +28,7 @@
     text-align: start;
     z-index: 2;
 
-    .events section:first-of-type & { 
+    .events section:first-of-type & {
       border-radius: 0.5em 0.5em 0 0;
     }
 

@@ -1,6 +1,8 @@
 class CollectionsController < ApplicationController
   before_action :set_collection, except: %i[ new create ]
 
+  include FilterScoped
+
   def new
     @collection = Collection.new
   end

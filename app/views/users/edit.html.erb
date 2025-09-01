@@ -1,12 +1,7 @@
 <% @page_title = "Edit your profile" %>
 
 <% content_for :header do %>
-  <nav class="header">
-    <div class="header__actions header__actions--start">
-      <%= link_to_back fallback_path: user_path(@user) %>
-    </div>
-    <div class="header__actions header__actions--end"></div>
-  </nav>
+  <%= render "filters/menu", user_filtering: @user_filtering %>
 <% end %>
 
 <div class="panel shadow center">

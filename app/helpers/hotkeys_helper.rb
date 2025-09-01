@@ -1,19 +1,14 @@
 module HotkeysHelper
+  # Pass in an array of chorded keys, e.g. ["ctrl", "shift", "J"]
   def hotkey_label(hotkey)
-    hotkey.split(",").first if hotkey
-    case hotkey
-    when Array
-      hotkey.map { |key|
-        if key == "ctrl" && platform.mac?
-          "⌘"
-        elsif key == "enter"
-          platform.mac? ? "return" : "enter"
-        else
-          key
-        end
-      }.join()
-    else
-      hotkey.split(",").first if hotkey
-    end
+    hotkey.map do |key|
+      if key == "ctrl" && platform.mac?
+        "⌘"
+      elsif key == "enter"
+        platform.mac? ? "return" : "enter"
+      else
+        key
+      end.capitalize
+    end.join("+").gsub(/⌘\+/, "⌘")
   end
 end

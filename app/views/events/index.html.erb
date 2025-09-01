@@ -1,11 +1,11 @@
 <% @page_title = "Home" %>
+<% @header_class = "header--events" %>
+
 <%= turbo_stream_from :activity_summaries %>
 
 <% content_for :header do %>
   <%= render "filters/menu", user_filtering: @user_filtering %>
-<% end %>
 
-<header class="events-header header margin-block-end">
   <%= render "filters/menu/add_card_button", user_filtering: @user_filtering %>
 
   <h1 class="header__title overflow-ellipsis">
@@ -13,9 +13,8 @@
       Activity in <%= @user_filtering.selected_collections_label %>
     </div>
   </h1>
+<% end %>
 
-  <div class="header__actions header__actions--end"></div>
-</header>
 <div class="events" id="activity">
   <%= render "events/day", day_timeline: @day_timeline %>
 </div>

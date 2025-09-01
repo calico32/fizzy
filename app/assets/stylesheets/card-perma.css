@@ -17,6 +17,7 @@
       "notch-bottom notch-bottom notch-bottom";
     grid-template-columns: 48px minmax(0, 1120px) 48px;
     inline-size: fit-content;
+    margin-block-start: 2rem;
     max-inline-size: 100%;
     margin-inline: auto;
 
@@ -102,18 +103,6 @@
       margin-inline: calc(-1 * var(--padding-inline));
       max-inline-size: none;
       position: relative;
-    }
-  }
-
-  .card-perma__collection-header {
-    margin-block-end: var(--block-space);
-
-    #main:has(.card-perma__notch--top) & {
-      margin-block-end: 4ch;
-
-      @media (max-width: 639px) {
-        margin-block-end: 2ch;
-      }
     }
   }
 

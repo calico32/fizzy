@@ -63,6 +63,10 @@
     --tray-size: var(--footer-height);
   }
 
+  /* Layout */
+  --main-padding: clamp(var(--inline-space), 3vw, calc(var(--inline-space) * 3));
+  --main-width: 1400px;
+
   /* Z-index */
   --z-events-column-header: 1;
   --z-events-day-header: 3;

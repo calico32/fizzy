@@ -3,8 +3,8 @@
   <%= render "layouts/shared/head" %>
 
   <body data-controller="local-time timezone-cookie" data-action="turbo:morph@window->local-time#refreshAll">
-    <header id="header">
-      <a href="#main" class="skip-navigation btn" data-turbo="false">Skip to main content</a>
+    <header class="header <%= @header_class %>" id="header">
+      <a href="#main" class="header__skip-navigation btn" data-turbo="false">Skip to main content</a>
       <%= yield :header %>
     </header>
 

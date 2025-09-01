@@ -14,7 +14,7 @@ proxy:
 registry:
   server: registry.37signals.com
   username: robot$harbor-bot
-  password: 
+  password:
     - BASECAMP_REGISTRY_PASSWORD
 
 builder:
@@ -31,3 +31,4 @@ env:
 aliases:
   console: app exec -i --reuse "bin/rails console"
   ssh: app exec -i --reuse /bin/bash
+  switch: accessory exec beamer --reuse "beamer switch --primary=<%= ENV["PRIMARY"] %>"

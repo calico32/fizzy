@@ -1,4 +1,9 @@
-<section id="on-deck-cards" class="cards cards--on-deck" data-drag-and-drop-target="container" data-drop-target="on_deck">
+<section id="on-deck-cards" class="cards cards--on-deck"
+    data-drag-and-drop-target="container"
+    data-drop-target="on_deck"
+    data-related-element-target="related"
+    data-related-element-group-value="card-columns"
+    data-action="mouseover->related-element#highlight mouseout->related-element#unhighlight">
   <h2 class="cards__heading">On Deck</h2>
 
   <% if page.used? %>
@@ -9,5 +14,7 @@
         <%= cards_next_page_link "on-deck-cards", page: page, filter: filter %>
       </div>
     <% end %>
+  <% else %>
+    <p class="txt-normal translucent"><%= @user_filtering.any? ? "No matches" : "Nothing here" %></p>
   <% end %>
 </section>

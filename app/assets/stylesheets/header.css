@@ -7,14 +7,34 @@
     --header-button-count: 0;
     --header-actions-width: calc((var(--header-btn-size) + var(--header-gap)) * var(--header-button-count));
 
-    align-items: center;
-    display: flex;
-    padding: calc(var(--block-space-half) + env(safe-area-inset-top)) var(--inline-space);
+    display: grid;
+    grid-template-columns: var(--header-actions-width) 1fr var(--header-actions-width);
+    grid-template-areas:
+      "menu menu menu"
+      "actions-start title actions-end";
+    max-inline-size: 100dvw;
+    padding: calc(var(--block-space-half) + env(safe-area-inset-top)) var(--main-padding);
+    view-transition-name: header;
 
     /* Change the grid size depending on how many buttons are present */
     &:has(.header__actions > *:nth-child(1)) { --header-button-count: 1; }
     &:has(.header__actions > *:nth-child(2)) { --header-button-count: 2; }
     &:has(.header__actions > *:nth-child(3)) { --header-button-count: 3; }
+
+    &:has(nav) {
+      row-gap: var(--block-space-half);
+    }
+
+    &:has(~ #main .card-columns) {
+      inline-size: 100dvw;
+      margin-inline: auto;
+      max-inline-size: var(--main-width);
+    }
+
+    nav {
+      grid-area: menu;
+      margin-inline: auto;
+    }
   }
 
   .header__actions {
@@ -26,20 +46,37 @@
   }
 
   .header__actions--start {
+    grid-area: actions-start;
     margin-inline-end: auto;
   }
 
   .header__actions--end {
-    margin-inline-start: auto;
+    grid-area: actions-end;
     justify-content: flex-end;
+    margin-inline-start: auto;
   }
 
   .header__title {
     color: inherit;
     font-size: var(--text-large);
     font-weight: 900;
+    grid-area: title;
     margin: 0 auto;
     min-inline-size: 0;
     text-align: center;
+  }
+
+  .header__skip-navigation {
+    --left-offset: -999em;
+
+    inset-block-start: 4rem;
+    inset-inline-start: var(--left-offset);
+    position: absolute;
+    white-space: nowrap;
+    z-index: 11;
+
+    &:focus {
+      --left-offset: var(--inline-space);
+    }
   }
 }

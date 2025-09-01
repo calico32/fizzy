@@ -1,6 +1,8 @@
 class WorkflowsController < ApplicationController
   before_action :set_workflow, only: %i[ show edit update destroy ]
 
+  include FilterScoped
+
   def index
     @workflows = Workflow.all
   end

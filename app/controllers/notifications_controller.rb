@@ -1,4 +1,6 @@
 class NotificationsController < ApplicationController
+  include FilterScoped
+
   def index
     @unread = Current.user.notifications.unread.ordered unless current_page_param
     set_page_and_extract_portion_from Current.user.notifications.read.ordered

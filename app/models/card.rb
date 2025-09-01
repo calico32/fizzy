@@ -24,6 +24,7 @@ class Card < ApplicationRecord
     when "closing_soon" then closing_soon
     when "falling_back_soon" then falling_back_soon
     when "closed" then closed.recently_closed_first
+    when "golden" then golden
     else all
     end
   end

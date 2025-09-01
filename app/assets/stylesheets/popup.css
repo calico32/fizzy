@@ -32,7 +32,6 @@
     }
 
     #header:has(&) {
-      max-inline-size: 100vw;
       position: relative;
       z-index: 5;
     }

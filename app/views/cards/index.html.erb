@@ -10,10 +10,13 @@
 
 <% content_for :header do %>
   <%= render "filters/menu", user_filtering: @user_filtering %>
-<% end %>
 
-<header class="header" style="--header-actions-width: 7rem;">
-  <div class="header__actions header__actions--start"></div>
+  <div class="header__actions header__actions--start">
+    <% if collection = @filter.single_collection %>
+      <%= access_involvement_advance_button collection, Current.user %>
+    <% end %>
+  </div>
+
   <h1 class="header__title overflow-ellipsis" style="view-transistion-name: card-collection-title">
     <%= @user_filtering.selected_collections_label %>
   </h1>
@@ -23,7 +26,7 @@
       <%= render "cards/collection_settings", collection: collection %>
     <% end %>
   </div>
-</header>
+<% end %>
 
 <%= render "filters/settings", user_filtering: @user_filtering %>
 
@@ -37,11 +40,15 @@
         dragover->drag-and-drop#dragOver
         drop->drag-and-drop#drop
         dragend->drag-and-drop#dragEnd" } do %>
-  <div class="card-columns">
-    <%= render "cards/index/engagement/on_deck", **@on_deck.to_h %>
-    <%= render "cards/index/engagement/considering", **@considering.to_h %>
-    <%= render "cards/index/engagement/doing", **@doing.to_h %>
+  
+  <div class="card-columns" data-controller="related-element" data-related-element-highlight-class="cards--related">
+    <% unless @filter.closers.any? %>
+      <%= render "cards/index/engagement/on_deck", **@on_deck.to_h %>
+      <%= render "cards/index/engagement/considering", **@considering.to_h %>
+      <%= render "cards/index/engagement/doing", **@doing.to_h %>
+    <% end %>
   </div>
+ 
 
   <%= render "cards/index/engagement/closed", **@closed.to_h %>
 <% end %>
