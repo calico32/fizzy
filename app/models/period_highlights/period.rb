@@ -21,14 +21,6 @@ class PeriodHighlights::Period
     @keu ||= Digest::SHA256.hexdigest(events.ids.sort.join("-"))
   end
 
-  def as_params
-    {
-      key: key,
-      starts_at: starts_at,
-      duration: duration
-    }
-  end
-
   private
     def window
       starts_at..starts_at + duration

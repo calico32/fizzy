@@ -9,12 +9,13 @@ class User::HighlightsTest < ActiveSupport::TestCase
   end
 
   test "generate weekly highlights" do
-    period_highlights = assert_difference -> { PeriodHighlights.count }, 1 do
-      @user.generate_weekly_highlights
-    end
+    stub_const(PeriodHighlights::Period, :MIN_EVENTS_TO_BE_INTERESTING, 3) do
+      period_highlights = assert_difference -> { PeriodHighlights.count }, 1 do
+        @user.generate_weekly_highlights
+      end
 
-    assert_equal Time.current.beginning_of_week(:sunday).utc, period_highlights.starts_at
-    assert_match /logo/i, period_highlights.to_html
+      assert_match /logo/i, period_highlights.to_html
+    end
   end
 
   test "don't generate highlights for existing periods" do

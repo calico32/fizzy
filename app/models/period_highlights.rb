@@ -6,7 +6,7 @@ class PeriodHighlights < ApplicationRecord
 
     def for(collections, starts_at:, duration: 1.week)
       period = Period.new(collections, starts_at:, duration:)
-      find_by(**period.as_params) if period.has_enough_activity?
+      find_by(key: period.key) if period.has_enough_activity?
     end
 
     private
@@ -17,7 +17,7 @@ class PeriodHighlights < ApplicationRecord
           summarizer = Event::Summarizer.new(period.events)
           summarized_content = summarizer.summarized_content # outside of transaction as this can be slow
 
-          create_or_find_by!(**period.as_params) do |record|
+          create_or_find_by!(key: period.key) do |record|
             record.content = summarized_content
             record.cost_in_microcents = summarizer.cost.in_microcents
           end

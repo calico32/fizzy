@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_09_05_093718) do
+ActiveRecord::Schema[8.1].define(version: 2025_09_05_101432) do
   create_table "accesses", force: :cascade do |t|
     t.datetime "accessed_at"
     t.integer "collection_id", null: false
@@ -328,11 +328,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_05_093718) do
     t.text "content", null: false
     t.bigint "cost_in_microcents"
     t.datetime "created_at", null: false
-    t.bigint "duration", default: 604800, null: false
     t.string "key", null: false
-    t.datetime "starts_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key", "starts_at", "duration"], name: "index_period_highlights_on_key_and_starts_at_and_duration", unique: true
+    t.index ["key"], name: "index_period_highlights_on_key_and_starts_at_and_duration", unique: true
   end
 
   create_table "pins", force: :cascade do |t|

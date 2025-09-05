@@ -9,4 +9,8 @@ module User::Configurable
 
     delegate :timezone, to: :settings, allow_nil: true
   end
+
+  def in_time_zone(&block)
+    Time.use_zone(timezone, &block)
+  end
 end

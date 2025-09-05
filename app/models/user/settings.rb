@@ -24,7 +24,11 @@ class User::Settings < ApplicationRecord
   end
 
   def timezone
-    ActiveSupport::TimeZone[timezone_name] if timezone_name.present?
+    if timezone_name.present?
+      ActiveSupport::TimeZone[timezone_name] || default_timezone
+    else
+      default_timezone
+    end
   end
 
   private
@@ -46,5 +50,9 @@ class User::Settings < ApplicationRecord
       user.notification_bundles.pending.find_each do |bundle|
         bundle.deliver_later
       end
+    end
+
+    def default_timezone
+      ActiveSupport::TimeZone["UTC"]
     end
 end

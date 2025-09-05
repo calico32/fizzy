@@ -14,15 +14,19 @@ module User::Highlights
   end
 
   def generate_weekly_highlights(date = Time.current)
-    PeriodHighlights.create_or_find_for collections, starts_at: highlights_starts_at(date), duration: 1.week
+    in_time_zone do
+      PeriodHighlights.create_or_find_for collections, starts_at: highlights_starts_at(date), duration: 1.week
+    end
   end
 
   def weekly_highlights_for(date)
-    PeriodHighlights.for(collections, starts_at: highlights_starts_at(date), duration: 1.week)
+    in_time_zone do
+      PeriodHighlights.for(collections, starts_at: highlights_starts_at(date), duration: 1.week)
+    end
   end
 
   private
     def highlights_starts_at(date = Time.current)
-      date.utc.beginning_of_week(:sunday)
+      date.beginning_of_week(:sunday)
     end
 end
