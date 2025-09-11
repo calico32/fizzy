@@ -1,5 +1,5 @@
 class Account < ApplicationRecord
-  include Entropic, Joinable, SignalAccount
+  include Entropic, Joinable
 
   has_many_attached :uploads
 

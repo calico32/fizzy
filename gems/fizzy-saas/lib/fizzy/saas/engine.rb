@@ -5,6 +5,12 @@ module Fizzy
     class Engine < ::Rails::Engine
       isolate_namespace Fizzy::Saas
 
+      # extend application models
+      config.to_prepare do
+        User.include User::SignalUser
+        Account.include Account::SignalAccount
+      end
+
       # moved from config/initializers/queenbee.rb
       Queenbee.host_app = Fizzy
 

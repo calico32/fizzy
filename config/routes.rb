@@ -190,10 +190,6 @@ Rails.application.routes.draw do
 
   root "events#index"
 
-  unless Rails.application.config.x.local_authentication
-    Queenbee.routes(self)
-  end
-
   namespace :admin do
     mount MissionControl::Jobs::Engine, at: "/jobs"
   end
