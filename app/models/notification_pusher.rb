@@ -17,10 +17,6 @@ class NotificationPusher
   end
 
   private
-    def account_prefix
-      "/#{Account.sole.queenbee_id}"
-    end
-
     def should_push?
       notification.user.push_subscriptions.any? &&
         !notification.creator.system? &&
@@ -91,7 +87,7 @@ class NotificationPusher
       {
         title: "New notification",
         body: "You have a new notification",
-        path: "#{account_prefix}#{notifications_path}"
+        path: "#{Account.sole.slug}#{notifications_path}"
       }
     end
 
@@ -113,6 +109,6 @@ class NotificationPusher
     end
 
     def card_path(card)
-      "#{account_prefix}#{Rails.application.routes.url_helpers.card_path(card)}"
+      "#{Account.sole.slug}#{Rails.application.routes.url_helpers.card_path(card)}"
     end
 end

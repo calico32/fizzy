@@ -30,7 +30,7 @@ class Signup::BaseController < ApplicationController
     end
 
     def redirect_to_account(account)
-      redirect_to account.signal_account.owner.remote_login_url(proceed_to: root_path),
+      redirect_to account.external_account.owner.remote_login_url(proceed_to: root_path),
                   allow_other_host: true
     end
 end

@@ -26,7 +26,7 @@ class Signup::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "div.alert--error", text: /you need to choose a password/i
   end
 
-  test "create for a new " do
+  test "create for a new identity" do
     integration_session.default_url_options[:script_name] = "" # no tenant
 
     assert_difference -> { SignalId::Identity.count }, +1 do

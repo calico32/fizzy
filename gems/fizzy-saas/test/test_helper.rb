@@ -6,7 +6,7 @@ module ActiveSupport
     include SignalId::Testing
 
     def saas_extension_sign_in_as(user)
-      put saas.session_launchpad_path, params: { sig: user.signal_user.perishable_signature }
+      put saas.session_launchpad_path, params: { sig: user.external_user.perishable_signature }
     end
   end
 end

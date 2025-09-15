@@ -42,7 +42,7 @@ class SignupTest < ActiveSupport::TestCase
 
     assert @signup.user
     assert @signup.user.persisted?
-    assert_equal @signup.user.signal_user, @signup.signal_account.owner
+    assert_equal @signup.user.external_user, @signup.signal_account.owner
 
     assert_equal @signup.queenbee_account.id.to_s, @signup.tenant_name
     assert_includes ApplicationRecord.tenants, @signup.tenant_name
@@ -86,7 +86,7 @@ class SignupTest < ActiveSupport::TestCase
 
     assert @signup.user
     assert @signup.user.persisted?
-    assert_equal @signup.user.signal_user, @signup.signal_account.owner
+    assert_equal @signup.user.external_user, @signup.signal_account.owner
 
     assert_equal @signup.queenbee_account.id.to_s, @signup.tenant_name
     assert_includes ApplicationRecord.tenants, @signup.tenant_name

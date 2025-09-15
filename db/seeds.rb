@@ -12,18 +12,18 @@ end
 
 def create_tenant(signal_account_name, bare: false)
   if bare
-    queenbee_id = Digest::SHA256.hexdigest(signal_account_name)[0..8].to_i(16)
+    tenant_id = Digest::SHA256.hexdigest(signal_account_name)[0..8].to_i(16)
   elsif Rails.application.config.x.local_authentication
-    queenbee_id = ActiveRecord::FixtureSet.identify signal_account_name
+    tenant_id = ActiveRecord::FixtureSet.identify signal_account_name
   else
     signal_account = SignalId::Account.find_by_product_and_name!("fizzy", signal_account_name)
-    queenbee_id = signal_account.queenbee_id
+    tenant_id = signal_account.queenbee_id
   end
 
-  ApplicationRecord.destroy_tenant queenbee_id
-  ApplicationRecord.create_tenant(queenbee_id) do
+  ApplicationRecord.destroy_tenant tenant_id
+  ApplicationRecord.create_tenant(tenant_id) do
     account = if bare || Rails.application.config.x.local_authentication
-      Account.create(name: signal_account_name, queenbee_id: queenbee_id).tap do
+      Account.create(name: signal_account_name, tenant_id: tenant_id).tap do
         User.create!(
           name: "David Heinemeier Hansson",
           email_address: "david@37signals.com",
@@ -31,12 +31,12 @@ def create_tenant(signal_account_name, bare: false)
         )
       end
     else
-      Account.create_with_admin_user(queenbee_id: queenbee_id)
+      Account.create_with_admin_user(tenant_id: tenant_id)
     end
     account.setup_basic_template
   end
 
-  ApplicationRecord.current_tenant = queenbee_id
+  ApplicationRecord.current_tenant = tenant_id
 end
 
 def find_or_create_user(full_name, email_address)
@@ -63,16 +63,16 @@ def find_or_create_user(full_name, email_address)
         )
       end
 
-      signal_account = Account.sole.signal_account
+      signal_account = Account.sole.external_account
       signal_user = SignalId::User.find_or_create_by!(identity: signal_identity, account: signal_account)
 
-      if user = User.find_by(signal_user_id: signal_user.id)
+      if user = User.find_by(external_user_id: signal_user.id)
         user.password = "secret123456"
         user.save!
         user
       else
         User.create!(
-          signal_user_id: signal_user.id,
+          external_user_id: signal_user.id,
           name: signal_identity.name,
           email_address: signal_identity.email_address,
           password: "secret123456"

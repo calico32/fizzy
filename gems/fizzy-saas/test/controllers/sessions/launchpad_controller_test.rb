@@ -15,7 +15,7 @@ class Sessions::LaunchpadControllerTest < ActionDispatch::IntegrationTest
   test "create establishes a session when the sig is valid" do
     user = users(:david)
 
-    put saas.session_launchpad_path(params: { sig: user.signal_user.perishable_signature })
+    put saas.session_launchpad_path(params: { sig: user.external_user.perishable_signature })
 
     assert_redirected_to root_url
     assert parsed_cookies.signed[:session_token]
@@ -25,7 +25,7 @@ class Sessions::LaunchpadControllerTest < ActionDispatch::IntegrationTest
     user = users(:david)
     user.update! active: false
 
-    put saas.session_launchpad_path(params: { sig: user.signal_user.perishable_signature })
+    put saas.session_launchpad_path(params: { sig: user.external_user.perishable_signature })
 
     assert_response :unauthorized
   end

@@ -5,8 +5,8 @@ david:
   email_address: david@37signals.com
   password_digest: <%= digest %>
   role: member
-<% if User.reflect_on_association :signal_user %>
-  signal_user: 37s_fizzy_david
+<% if User.reflect_on_association :external_user %>
+  external_user: 37s_fizzy_david
 <% end %>
 
 jz:
@@ -14,8 +14,8 @@ jz:
   email_address: jz@37signals.com
   password_digest: <%= digest %>
   role: member
-<% if User.reflect_on_association :signal_user %>
-  signal_user: 37s_fizzy_jzimdars
+<% if User.reflect_on_association :external_user %>
+  external_user: 37s_fizzy_jzimdars
 <% end %>
 
 kevin:
@@ -23,8 +23,8 @@ kevin:
   email_address: kevin@37signals.com
   password_digest: <%= digest %>
   role: admin
-<% if User.reflect_on_association :signal_user %>
-  signal_user: 37s_fizzy_kevin
+<% if User.reflect_on_association :external_user %>
+  external_user: 37s_fizzy_kevin
 <% end %>
 
 system:

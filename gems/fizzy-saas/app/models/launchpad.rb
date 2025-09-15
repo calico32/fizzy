@@ -18,7 +18,7 @@ module Launchpad
 
   def product_account_path(path = nil, product: false, account: nil)
     product_path = "/fizzy" if product || account
-    account_path = "/#{account.signal_account.id}" if account
+    account_path = "/#{account.external_account.id}" if account
     [ product_path, account_path, path ].compact.join
   end
 end

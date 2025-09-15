@@ -125,7 +125,7 @@ columns:
     comment:
   - !ruby/object:ActiveRecord::ConnectionAdapters::SQLite3::Column
     auto_increment:
-    name: queenbee_id
+    name: tenant_id
     cast_type: *3
     sql_type_metadata: *4
     'null': true
@@ -1269,6 +1269,16 @@ columns:
     default_function:
     collation:
     comment:
+  - !ruby/object:ActiveRecord::ConnectionAdapters::SQLite3::Column
+    auto_increment:
+    name: external_user_id
+    cast_type: *3
+    sql_type_metadata: *4
+    'null': true
+    default:
+    default_function:
+    collation:
+    comment:
   - *6
   - *10
   - !ruby/object:ActiveRecord::ConnectionAdapters::SQLite3::Column
@@ -1288,16 +1298,6 @@ columns:
     sql_type_metadata: *8
     'null': false
     default: member
-    default_function:
-    collation:
-    comment:
-  - !ruby/object:ActiveRecord::ConnectionAdapters::SQLite3::Column
-    auto_increment:
-    name: signal_user_id
-    cast_type: *3
-    sql_type_metadata: *4
-    'null': true
-    default:
     default_function:
     collation:
     comment:
@@ -1520,10 +1520,10 @@ indexes:
   accounts:
   - !ruby/object:ActiveRecord::ConnectionAdapters::IndexDefinition
     table: accounts
-    name: index_accounts_on_queenbee_id
+    name: index_accounts_on_tenant_id
     unique: true
     columns:
-    - queenbee_id
+    - tenant_id
     lengths: {}
     orders: {}
     opclasses: {}
@@ -2928,10 +2928,10 @@ indexes:
     valid: true
   - !ruby/object:ActiveRecord::ConnectionAdapters::IndexDefinition
     table: users
-    name: index_users_on_role
-    unique: false
+    name: index_users_on_external_user_id
+    unique: true
     columns:
-    - role
+    - external_user_id
     lengths: {}
     orders: {}
     opclasses: {}
@@ -2944,10 +2944,10 @@ indexes:
     valid: true
   - !ruby/object:ActiveRecord::ConnectionAdapters::IndexDefinition
     table: users
-    name: index_users_on_signal_user_id
-    unique: true
+    name: index_users_on_role
+    unique: false
     columns:
-    - signal_user_id
+    - role
     lengths: {}
     orders: {}
     opclasses: {}
@@ -3009,4 +3009,4 @@ indexes:
     comment:
     valid: true
   workflows: []
-version: 20250912123359
+version: 20250915170056

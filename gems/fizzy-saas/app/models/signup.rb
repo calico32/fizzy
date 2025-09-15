@@ -85,7 +85,7 @@ class Signup
     def create_tenant(destroy_existing_tenant: false, &block)
       ApplicationRecord.destroy_tenant(tenant_name) if destroy_existing_tenant
       ApplicationRecord.create_tenant(tenant_name) do
-        @account = Account.create_with_admin_user(queenbee_id: queenbee_account.id)
+        @account = Account.create_with_admin_user(tenant_id: queenbee_account.id)
         @account.setup_basic_template
         @user = User.first
       end
