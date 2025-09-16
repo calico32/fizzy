@@ -7,7 +7,7 @@ class Card::Entropy
 
       if card.considering?
         new(card, card.auto_close_period)
-      elsif card.doing?
+      elsif card.stagnated?
         new(card, card.auto_reconsider_period)
       end
     end

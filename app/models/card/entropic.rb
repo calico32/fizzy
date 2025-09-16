@@ -8,7 +8,7 @@ module Card::Entropic
           Entropy::Configuration.default.public_send(period_name))
     end
 
-    scope :stagnated, -> { doing.entropic_by(:auto_reconsider_period) }
+    scope :stagnated, -> { doing.or(on_deck).entropic_by(:auto_reconsider_period) }
 
     scope :due_to_be_closed, -> { considering.entropic_by(:auto_close_period) }
 
@@ -20,7 +20,7 @@ module Card::Entropic
     end
 
     scope :falling_back_soon, -> do
-      doing
+      doing.or(on_deck)
         .left_outer_joins(collection: :entropy_configuration)
         .where("last_active_at >  DATETIME('now', '-' || COALESCE(entropy_configurations.auto_reconsider_period, ?) || ' seconds')", Entropy::Configuration.default.auto_reconsider_period)
         .where("last_active_at <= DATETIME('now', '-' || CAST(COALESCE(entropy_configurations.auto_reconsider_period, ?) * 0.75 AS INTEGER) || ' seconds')", Entropy::Configuration.default.auto_reconsider_period)
@@ -47,5 +47,9 @@ module Card::Entropic
 
   def entropic?
     entropy.present?
+  end
+
+  def stagnated?
+    card.doing? || card.on_deck?
   end
 end
