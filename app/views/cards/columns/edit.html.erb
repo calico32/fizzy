@@ -14,7 +14,7 @@
         aria: { checked: @card.awaiting_triage? },
         form_class: "flex align-center gap-half" %>
 
-    <% @card.collection.columns.each do |column| %>
+    <% @columns.each do |column| %>
       <%= button_to_set_column @card, column %>
     <% end %>
 
