@@ -112,8 +112,7 @@ class Import
         new_membership = new_identity.memberships.find_or_create_by!(tenant: account.external_account_id.to_s)
 
         if Account.all.exists?(external_account_id: account.external_account_id)
-          @account = Account.find_by!(external_account_id: account.external_account_id)
-          @tenant = @account.external_account_id
+          raise "Account already exists"
         else
           @account = Account.create_with_admin_user(
             account: {
@@ -228,85 +227,117 @@ class Import
     def copy_cards
       step("Copying cards", "Copied %{count} cards in %{duration}") do
         mapping[:cards] ||= {}
+        next_id = (Card.maximum(:id) || 0) + 1
+
+        # Collect all associated records to batch insert
+        activity_spikes_to_insert = []
+        engagements_to_insert = []
+        goldnesses_to_insert = []
+        not_nows_to_insert = []
+        assignments_to_insert = []
+        closures_to_insert = []
+
+        import.cards.in_batches(of: 1000) do |batch|
+          cards_to_insert = []
+
+          batch.each do |old_card|
+            new_id = next_id
+            next_id += 1
+            mapping[:cards][old_card.id] = new_id
+
+            # Map old 'creating' status to 'drafted' since it's no longer a valid enum value
+            status = old_card.status == "creating" ? "drafted" : old_card.status
+
+            cards_to_insert << {
+              id: new_id,
+              account_id: account.id,
+              board_id: mapping[:boards][old_card.board_id],
+              column_id: old_card.column_id ? mapping[:columns][old_card.column_id] : nil,
+              creator_id: mapping[:users][old_card.creator_id],
+              title: old_card.title,
+              status: status,
+              due_on: old_card.due_on,
+              last_active_at: old_card.last_active_at,
+              created_at: old_card.created_at,
+              updated_at: old_card.updated_at
+            }
+
+            old_activity_spike = old_card.activity_spike
+            if old_activity_spike
+              activity_spikes_to_insert << {
+                card_id: new_id,
+                created_at: old_activity_spike.created_at,
+                updated_at: old_activity_spike.updated_at
+              }
+            end
+
+            old_engagement = old_card.engagement
+            if old_engagement
+              engagements_to_insert << {
+                card_id: new_id,
+                status: old_engagement.status,
+                created_at: old_engagement.created_at,
+                updated_at: old_engagement.updated_at
+              }
+            end
+
+            old_goldness = old_card.goldness
+            if old_goldness
+              goldnesses_to_insert << {
+                card_id: new_id,
+                created_at: old_goldness.created_at,
+                updated_at: old_goldness.updated_at
+              }
+            end
+
+            old_not_now = old_card.not_now
+            if old_not_now
+              not_nows_to_insert << {
+                card_id: new_id,
+                user_id: old_not_now.user_id ? mapping[:users][old_not_now.user_id] : nil,
+                created_at: old_not_now.created_at,
+                updated_at: old_not_now.updated_at
+              }
+            end
+
+            old_card.assignments.each do |old_assignment|
+              assignments_to_insert << {
+                card_id: new_id,
+                assignee_id: mapping[:users][old_assignment.assignee_id],
+                assigner_id: mapping[:users][old_assignment.assigner_id],
+                created_at: old_assignment.created_at,
+                updated_at: old_assignment.updated_at
+              }
+            end
+
+            old_closure = old_card.closure
+            if old_closure
+              closures_to_insert << {
+                card_id: new_id,
+                user_id: old_closure.user_id ? mapping[:users][old_closure.user_id] : nil,
+                created_at: old_closure.created_at,
+                updated_at: old_closure.updated_at
+              }
+            end
+          end
+
+          Card.insert_all(cards_to_insert)
+        end
+
+        # Batch insert all associated records
+        Card::ActivitySpike.insert_all(activity_spikes_to_insert) if activity_spikes_to_insert.any?
+        Card::Engagement.insert_all(engagements_to_insert) if engagements_to_insert.any?
+        Card::Goldness.insert_all(goldnesses_to_insert) if goldnesses_to_insert.any?
+        Card::NotNow.insert_all(not_nows_to_insert) if not_nows_to_insert.any?
+        Assignment.insert_all(assignments_to_insert) if assignments_to_insert.any?
+        Closure.insert_all(closures_to_insert) if closures_to_insert.any?
+
+        # Second pass: copy rich text and attachments
         import.cards.find_each do |old_card|
-          # Map old 'creating' status to 'drafted' since it's no longer a valid enum value
-          status = old_card.status == "creating" ? "drafted" : old_card.status
-
-          new_card = Card.create!(
-            account_id: account.id,
-            board_id: mapping[:boards][old_card.board_id],
-            column_id: old_card.column_id ? mapping[:columns][old_card.column_id] : nil,
-            creator_id: mapping[:users][old_card.creator_id],
-            title: old_card.title,
-            status: status,
-            due_on: old_card.due_on,
-            last_active_at: old_card.last_active_at,
-            created_at: old_card.created_at,
-            updated_at: old_card.updated_at
-          )
-
+          new_card_id = mapping[:cards][old_card.id]
+          new_card = Card.find(new_card_id)
           copy_rich_text(old_card, new_card, "Card", "description")
           copy_attachment(old_card, new_card, "Card", "image")
-
-          old_activity_spike = old_card.activity_spike
-          if old_activity_spike
-            Card::ActivitySpike.create!(
-              card_id: new_card.id,
-              created_at: old_activity_spike.created_at,
-              updated_at: old_activity_spike.updated_at
-            )
-          end
-
-          old_engagement = old_card.engagement
-          if old_engagement
-            Card::Engagement.create!(
-              card_id: new_card.id,
-              status: old_engagement.status,
-              created_at: old_engagement.created_at,
-              updated_at: old_engagement.updated_at
-            )
-          end
-
-          old_goldness = old_card.goldness
-          if old_goldness
-            Card::Goldness.create!(
-              card_id: new_card.id,
-              created_at: old_goldness.created_at,
-              updated_at: old_goldness.updated_at
-            )
-          end
-
-          old_not_now = old_card.not_now
-          if old_not_now
-            Card::NotNow.create!(
-              card_id: new_card.id,
-              user_id: old_not_now.user_id ? mapping[:users][old_not_now.user_id] : nil,
-              created_at: old_not_now.created_at,
-              updated_at: old_not_now.updated_at
-            )
-          end
-
-          old_card.assignments.each do |old_assignment|
-            Assignment.create!(
-              card_id: new_card.id,
-              assignee_id: mapping[:users][old_assignment.assignee_id],
-              assigner_id: mapping[:users][old_assignment.assigner_id],
-              created_at: old_assignment.created_at,
-              updated_at: old_assignment.updated_at
-            )
-          end
-
-          old_closure = old_card.closure
-          if old_closure
-            Closure.create!(
-              card_id: new_card.id,
-              user_id: old_closure.user_id ? mapping[:users][old_closure.user_id] : nil,
-              created_at: old_closure.created_at,
-              updated_at: old_closure.updated_at
-            )
-          end
-
-          mapping[:cards][old_card.id] = new_card.id
         end
 
         { count: mapping[:cards].size }
@@ -337,19 +368,33 @@ class Import
     def copy_comments
       step("Copying comments", "Copied %{count} comments in %{duration}") do
         mapping[:comments] ||= {}
+        next_id = (Comment.maximum(:id) || 0) + 1
+
+        import.comments.in_batches(of: 1000) do |batch|
+          comments_to_insert = []
+
+          batch.each do |old_comment|
+            new_id = next_id
+            next_id += 1
+            mapping[:comments][old_comment.id] = new_id
+
+            comments_to_insert << {
+              id: new_id,
+              account_id: account.id,
+              card_id: mapping[:cards][old_comment.card_id],
+              creator_id: mapping[:users][old_comment.creator_id],
+              created_at: old_comment.created_at,
+              updated_at: old_comment.updated_at
+            }
+          end
+
+          Comment.insert_all(comments_to_insert)
+        end
 
         import.comments.find_each do |old_comment|
-          new_comment = Comment.create!(
-            account_id: account.id,
-            card_id: mapping[:cards][old_comment.card_id],
-            creator_id: mapping[:users][old_comment.creator_id],
-            created_at: old_comment.created_at,
-            updated_at: old_comment.updated_at
-          )
-
+          new_comment_id = mapping[:comments][old_comment.id]
+          new_comment = Comment.find(new_comment_id)
           copy_rich_text(old_comment, new_comment, "Comment", "body")
-
-          mapping[:comments][old_comment.id] = new_comment.id
         end
 
         { count: mapping[:comments].size }
