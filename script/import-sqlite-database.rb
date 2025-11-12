@@ -101,7 +101,7 @@ class Import
     end
 
     def generate_uuid
-      SecureRandom.uuid_v7
+      UuidPrimaryKey.generate
     end
 
     def setup_account

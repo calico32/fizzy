@@ -76,11 +76,12 @@ module FixturesTestHelper
   class_methods do
     def identify(label, column_type = :integer)
       if label.to_s.end_with?("_uuid")
-        label_without_suffix = label.to_s.delete_suffix("_uuid")
-        super(label_without_suffix, :uuid)
-      else
-        super(label, column_type)
+        column_type = :uuid
+        label = label.to_s.delete_suffix("_uuid")
       end
+
+      return super(label, column_type) unless column_type == :uuid
+      UuidPrimaryKey.uuid_to_base36(super(label, column_type))
     end
   end
 end

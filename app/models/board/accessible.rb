@@ -11,7 +11,7 @@ module Board::Accessible
       end
 
       def grant_to(users)
-        Access.insert_all Array(users).collect { |user| { id: SecureRandom.uuid_v7, board_id: proxy_association.owner.id, user_id: user.id } }
+        Access.insert_all Array(users).collect { |user| { id: UuidPrimaryKey.generate, board_id: proxy_association.owner.id, user_id: user.id } }
       end
 
       def revoke_from(users)
