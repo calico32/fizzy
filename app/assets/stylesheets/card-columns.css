@@ -2,14 +2,14 @@
   /* Column container
   /* ------------------------------------------------------------------------ */
 
-  #scroll-container:has(.card-columns) {
+  #scroll-container:has(.card-columns),
+  #main:has(.card-columns) {
     display: grid;
     grid-template-rows: auto 1fr;
   }
 
   #main:has(.card-columns) {
-    display: grid;
-    grid-template-rows: auto 1fr;
+    overflow: auto;
     padding: 0;
   }
 
@@ -29,9 +29,10 @@
     display: grid;
     gap: var(--column-gap);
     grid-template-columns: 1fr var(--column-width-expanded) 1fr;
+    grid-template-rows: 1fr;
+    inline-size: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-block-end: var(--column-width-collapsed);
     position: relative;
 
     @media (min-width: 640px) {
@@ -79,10 +80,11 @@
   .cards {
     --column-color: color-mix(in srgb, var(--card-color) 15%, var(--color-canvas));
 
+    flex-shrink: 0;
     inline-size: var(--column-width-expanded);
     outline: none;
+    overflow: auto;
     position: relative;
-    scroll-snap-align: start;
 
     @media (min-width: 640px) {
       &.is-collapsed {
@@ -137,11 +139,13 @@
   .cards__transition-container {
     block-size: 100%;
     border-radius: calc(var(--column-width-collapsed) / 2);
+    display: flex;
+    flex-direction: column;
     translate: 0;
     transition: translate var(--column-transition-duration) var(--ease-out-overshoot-subtle);
 
     @media (min-width: 640px) {
-      &:not(.is-collapsed) {
+      .cards:not(.is-collapsed) & {
         padding-inline: var(--column-padding-expanded);
       }
 
@@ -169,13 +173,13 @@
   /* The wrapper around the cards used to clip overflow while transitioning.
    * Also, don't resize cards while transitioning to avoid reflow. */
   .cards__list {
-    align-items: flex-end;
+    align-items: center;
     display: flex;
     flex-direction: column;
     gap: var(--cards-gap);
     margin-block-start: -1ch;
     margin-inline: -1ch;
-    overflow: hidden;
+    overflow: auto;
     padding: 1ch;
 
     @media (min-width: 640px) {
@@ -581,6 +585,13 @@
     --card-color: oklch(var(--lch-blue-medium));
 
     position: relative;
+
+    @media (max-width: 639px) {
+      .cards__list {
+        background: gold;
+        overflow-y: auto;
+      }
+    }
 
     .card {
       --avatar-size: 2.75em;
