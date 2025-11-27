@@ -2,6 +2,9 @@
 
 require_relative "../lib/fizzy"
 
+OSS_ENV = "SAAS=false BUNDLE_GEMFILE=Gemfile"
+SAAS_ENV = "SAAS=true BUNDLE_GEMFILE=Gemfile.saas"
+
 CI.run do
   step "Setup", "bin/setup --skip-server"
 
@@ -12,12 +15,12 @@ CI.run do
   step "Security: Brakeman audit", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
 
   if Fizzy.saas?
-    step "Tests: SaaS", "SAAS=true BUNDLE_GEMFILE=Gemfile.saas bin/rails test:all"
+    step "Tests: SaaS", "#{SAAS_ENV} bin/rails test:all"
+    step "Tests: SQLite", "#{OSS_ENV} DATABASE_ADAPTER=sqlite bin/rails test:all"
   else
-    step "Tests: MySQL", "SAAS=false BUNDLE_GEMFILE=Gemfile DATABASE_ADAPTER=mysql bin/rails test:all"
-    step "Tests: SQLite", "SAAS=false BUNDLE_GEMFILE=Gemfile DATABASE_ADAPTER=sqlite bin/rails test:all"
+    step "Tests: MySQL", "#{OSS_ENV} DATABASE_ADAPTER=mysql bin/rails test:all"
+    step "Tests: SQLite", "#{OSS_ENV} DATABASE_ADAPTER=sqlite bin/rails test:all"
   end
-
 
   if success?
     step "Signoff: All systems go. Ready for merge and deploy.", "gh signoff"

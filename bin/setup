@@ -58,6 +58,24 @@ needs_seeding() {
   fi
 }
 
+
+setup_database() {
+  local adapter="$1"
+  local reset="$2"
+  local label="${adapter:+ ($adapter)}"
+  local env_cmd="${adapter:+env DATABASE_ADAPTER=$adapter}"
+
+  if [ "$reset" = "true" ]; then
+    step "Resetting the database$label" $env_cmd rails db:reset
+  else
+    step "Preparing the database$label" $env_cmd rails db:prepare
+
+    if needs_seeding; then
+      step "Seeding the database$label" $env_cmd rails db:seed
+    fi
+  fi
+}
+
 echo
 gum style --foreground 153 "   ˚ ∘             ∘ ˚   "
 gum style --foreground 111 --bold "  ∘˚˳°∘°  𝒻𝒾𝓏𝓏𝓎  °∘°˳˚∘  "
@@ -100,27 +118,16 @@ else
   fi
 fi
 
-if [ -n "$SAAS" ]; then
-  if [[ $* == *--reset* ]]; then
-    step "Resetting the database" rails db:reset
-  else
-    step "Preparing the database" rails db:prepare
+reset_flag=""
+[[ $* == *--reset* ]] && reset_flag="true"
 
-    if needs_seeding; then
-      step "Seeding the database" rails db:seed
-    fi
-  fi
+if [ -n "$SAAS" ]; then
+  for adapter in saas sqlite; do
+    setup_database "$adapter" "$reset_flag"
+  done
 else
   for adapter in sqlite mysql; do
-    if [[ $* == *--reset* ]]; then
-      step "Resetting the database ($adapter)" env DATABASE_ADAPTER=$adapter rails db:reset
-    else
-      step "Preparing the database ($adapter)" env DATABASE_ADAPTER=$adapter rails db:prepare
-
-      if needs_seeding; then
-        step "Seeding the database ($adapter)" env DATABASE_ADAPTER=$adapter rails db:seed
-      fi
-    fi
+    setup_database "$adapter" "$reset_flag"
   done
 fi
 
