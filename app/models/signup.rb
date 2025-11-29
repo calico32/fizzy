@@ -18,7 +18,7 @@ class Signup
 
   def create_identity
     @identity = Identity.find_or_create_by!(email_address: email_address)
-    @identity.send_magic_link
+    @identity.send_magic_link for: :sign_up
   end
 
   def complete
