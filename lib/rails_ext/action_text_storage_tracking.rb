@@ -1,6 +1,6 @@
 module ActionTextContentStorageTracking
   def bytes_used
-    attachables.sum { |attachable| attachable.try(:byte_size) || 0 }
+    attachables.sum { |attachable| attachable.try(:attachable_filesize) || 0 }
   end
 end
 

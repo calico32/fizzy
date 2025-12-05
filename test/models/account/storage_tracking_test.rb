@@ -4,7 +4,6 @@ class Account::StorageTrackingTest < ActiveSupport::TestCase
   setup do
     Current.session = sessions(:david)
     @account = Current.account
-    @account.update!(bytes_used: 0)
   end
 
   test "track storage deltas" do
@@ -25,15 +24,22 @@ class Account::StorageTrackingTest < ActiveSupport::TestCase
     end
   end
 
-  test "recalculate bytes used from cards and comments" do
-    board = @account.boards.first
-    card = board.cards.create!(title: "Test", description: attachment_html(active_storage_blobs(:hello_txt)), status: :published)
-    card.comments.create!(body: attachment_html(active_storage_blobs(:hello_txt)))
-    card.comments.create!(body: attachment_html(active_storage_blobs(:list_pdf)))
+  test "recalculate bytes used from cards and comments across boards" do
+    board1 = boards(:writebook)
+    board2 = boards(:private)
+
+    card1 = board1.cards.create!(title: "Test 1", description: attachment_html(active_storage_blobs(:hello_txt)), status: :published)
+    card1.comments.create!(body: attachment_html(active_storage_blobs(:hello_txt)))
+
+    card2 = board2.cards.create!(title: "Test 2", description: attachment_html(active_storage_blobs(:list_pdf)), status: :published)
 
     @account.recalculate_bytes_used
 
-    expected_bytes = active_storage_blobs(:hello_txt).byte_size * 2 + active_storage_blobs(:list_pdf).byte_size
-    assert_equal expected_bytes, @account.bytes_used
+    board1_expected = active_storage_blobs(:hello_txt).byte_size * 2
+    board2_expected = active_storage_blobs(:list_pdf).byte_size
+
+    assert_equal board1_expected, board1.reload.bytes_used
+    assert_equal board2_expected, board2.reload.bytes_used
+    assert_equal board1_expected + board2_expected, @account.bytes_used
   end
 end
