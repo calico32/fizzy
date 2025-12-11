@@ -1,30 +1,28 @@
 class Current < ActiveSupport::CurrentAttributes
-  attribute :session, :user, :account
+  attribute :session, :user, :identity, :account
   attribute :http_method, :request_id, :user_agent, :ip_address, :referrer
-
-  delegate :identity, to: :session, allow_nil: true
 
   def session=(value)
     super(value)
 
-    if value.present? && account.present?
+    if value.present?
+      self.identity = session.identity
+    end
+  end
+
+  def identity=(identity)
+    super(identity)
+
+    if identity.present?
       self.user = identity.users.find_by(account: account)
     end
   end
 
-  def with_account(value)
-    @old_account = self.account
-    self.account = value
-    yield
-  ensure
-    self.account = @old_account
+  def with_account(value, &)
+    with(account: value, &)
   end
 
-  def without_account
-    @old_account = self.account
-    self.account = nil
-    yield
-  ensure
-    self.account = @old_account
+  def without_account(&)
+    with(account: nil, &)
   end
 end

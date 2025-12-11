@@ -3,6 +3,7 @@ class JoinCodesController < ApplicationController
 
   before_action :set_join_code
   before_action :ensure_join_code_is_valid
+  before_action :set_identity, only: :create
 
   layout "public"
 
@@ -10,24 +11,35 @@ class JoinCodesController < ApplicationController
   end
 
   def create
-    identity = Identity.find_or_create_by!(email_address: params.expect(:email_address))
+    @join_code.redeem_if { |account| @identity.join(account) }
+    user = User.active.find_by!(account: @join_code.account, identity: @identity)
 
-    @join_code.redeem { |account| identity.join(account) } unless identity.member_of?(@join_code.account)
-
-    if identity == Current.identity
+    if @identity == Current.identity && user.setup?
       redirect_to landing_url(script_name: @join_code.account.slug)
+    elsif @identity == Current.identity
+      redirect_to new_users_verification_url(script_name: @join_code.account.slug)
     else
       terminate_session if Current.identity
 
-      magic_link = identity.send_magic_link
-      flash[:magic_link_code] = magic_link&.code if Rails.env.development?
-
-      session[:return_to_after_authenticating] = new_users_join_url(script_name: @join_code.account.slug)
-      redirect_to session_magic_link_url(script_name: nil)
+      redirect_to_session_magic_link \
+        @identity.send_magic_link,
+        return_to: new_users_verification_url(script_name: @join_code.account.slug)
     end
   end
 
   private
+    def set_identity
+      @identity = Identity.find_or_initialize_by(email_address: params.expect(:email_address))
+
+      if @identity.new_record?
+        if @identity.invalid?
+          head :unprocessable_entity
+        else
+          @identity.save!
+        end
+      end
+    end
+
     def set_join_code
       @join_code ||= Account::JoinCode.find_by(code: params.expect(:code), account: Current.account)
     end

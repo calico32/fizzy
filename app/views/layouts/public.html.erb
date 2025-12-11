@@ -15,11 +15,14 @@
       <%= yield :header %>
     </header>
 
+    <%= render "layouts/shared/flash" %>
+
     <main id="main">
       <%= yield %>
     </main>
 
     <footer id="footer">
       <%= yield :footer %>
+    </footer>
   </body>
 </html>

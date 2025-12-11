@@ -2,17 +2,11 @@
 
 <% content_for :header do %>
   <div class="header__actions header__actions--start">
-    <%= link_to edit_user_path(@user, script_name: @user.account.slug), class: "btn btn--back borderless txt-medium", data: { controller: "hotkey", action: "keydown.left@document->hotkey#click" } do %>
-      <span class="overflow-ellipsis flex align-center">
-        <%= icon_tag "arrow-left" %>
-        <strong>Back to My profile</strong>
-        <kbd class="txt-x-small margin-inline-start hide-on-touch">&larr;</kbd>
-      </span>
-    <% end %>
+    <%= back_link_to "My profile", edit_user_path(@user, script_name: @user.account.slug), "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
   </div>
 <% end %>
 
-<div class="panel panel--centered flex flex-column gap-half">
+<div class="panel panel--centered flex flex-column gap-half" style="--panel-size: 45ch;">
   <h1 class="txt-x-large font-weight-black margin-none">
     <%= @page_title %>
   </h1>
@@ -24,7 +18,7 @@
       </label>
     </div>
 
-    <p class="margin-none">Enter your new email address, then hit the link to confirm it</p>
+    <p class="margin-none-block-start margin-block-end-half">Enter your new email address, then check your email to confirm the change.</p>
 
     <button type="submit" class="btn btn--link center" data-form-target="submit">
       <span>Continue</span>

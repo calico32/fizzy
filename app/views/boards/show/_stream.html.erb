@@ -15,5 +15,8 @@
         <%= render "boards/columns/list", cards: page.records, draggable: true %>
       <% end %>
     <% end %>
-  </div>
+  <% else %>
+    <div class="cards__list" data-drag-drop-item-container>
+    </div>
+  <% end %>
 <% end %>

@@ -13,19 +13,21 @@ else
 
   def create_tenant(signal_account_name)
     tenant_id = ActiveRecord::FixtureSet.identify signal_account_name
-    email_address = "david@37signals.com"
-    identity = Identity.find_or_create_by!(email_address: email_address)
+    email_address = "david@example.com"
+    identity = Identity.find_or_create_by!(email_address: email_address, staff: true)
 
-    account = Account.create_with_admin_user(
-      account: {
-        external_account_id: tenant_id,
-        name: signal_account_name
-      },
-      owner: {
-        name: "David Heinemeier Hansson",
-        identity: identity
-      }
-    )
+    unless account = Account.find_by(external_account_id: tenant_id)
+      account = Account.create_with_owner(
+        account: {
+          external_account_id: tenant_id,
+          name: signal_account_name
+        },
+        owner: {
+          name: "David Heinemeier Hansson",
+          identity: identity
+        }
+      )
+    end
     Current.account = account
   end
 
@@ -34,7 +36,7 @@ else
     if user = identity.users.find_by(account: Current.account)
       user
     else
-      User.create!(name: full_name, identity: identity, account: Current.account)
+      User.create!(name: full_name, identity: identity, account: Current.account, verified_at: Time.current)
     end
   end
 
@@ -43,7 +45,7 @@ else
   end
 
   def create_board(name, creator: Current.user, all_access: true, access_to: [])
-    Board.create!(name:, creator:, all_access:).tap { it.accesses.grant_to(access_to) }
+    Board.find_or_create_by!(name:, creator:, all_access:).tap { it.accesses.grant_to(access_to) }
   end
 
   def create_card(title, board:, description: nil, status: :published, creator: Current.user)

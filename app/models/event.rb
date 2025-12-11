@@ -9,6 +9,16 @@ class Event < ApplicationRecord
   has_many :webhook_deliveries, class_name: "Webhook::Delivery", dependent: :delete_all
 
   scope :chronologically, -> { order created_at: :asc, id: :desc }
+  scope :preloaded, -> {
+    includes(:creator, :board, {
+      eventable: [
+        :goldness, :closure, :image_attachment,
+        { rich_text_body: :embeds_attachments },
+        { rich_text_description: :embeds_attachments },
+        { card: [ :goldness, :closure, :image_attachment ] }
+      ]
+    })
+  }
 
   after_create -> { eventable.event_was_created(self) }
   after_create_commit :dispatch_webhooks

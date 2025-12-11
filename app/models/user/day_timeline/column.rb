@@ -1,9 +1,10 @@
 class User::DayTimeline::Column
   include ActionView::Helpers::TagHelper, ActionView::Helpers::OutputSafetyHelper, TimeHelper
 
-  attr_reader :index, :base_title, :day_timeline, :events
+  attr_reader :index, :id, :base_title, :day_timeline, :events
 
-  def initialize(day_timeline, base_title, index, events)
+  def initialize(day_timeline, id, base_title, index, events)
+    @id = id
     @day_timeline = day_timeline
     @base_title = base_title
     @index = index
@@ -27,6 +28,10 @@ class User::DayTimeline::Column
 
   def hidden_events_count
     full_events_count - limited_events.count
+  end
+
+  def to_param
+    id
   end
 
   private

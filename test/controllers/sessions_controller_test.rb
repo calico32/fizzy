@@ -9,6 +9,15 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new redirects authenticated users" do
+    sign_in_as :kevin
+
+    untenanted do
+      get new_session_path
+      assert_redirected_to root_url
+    end
+  end
+
   test "create" do
     identity = identities(:kevin)
 
@@ -18,21 +27,50 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       end
 
       assert_redirected_to session_magic_link_path
+      assert_nil flash[:magic_link_code]
     end
   end
 
-  unless Bootstrap.oss_config?
-    test "create for a new user" do
-      untenanted do
+  test "create for a new user" do
+    untenanted do
+      assert_difference -> { MagicLink.count }, +1 do
         assert_difference -> { Identity.count }, +1 do
-          assert_difference -> { MagicLink.count }, +1 do
+          post session_path,
+            params: { email_address: "nonexistent-#{SecureRandom.hex(6)}@example.com" }
+        end
+      end
+
+      assert_redirected_to session_magic_link_path
+      assert MagicLink.last.for_sign_up?
+    end
+  end
+
+  test "create for a new user when single tenant mode already has a tenant" do
+    with_multi_tenant_mode(false) do
+      untenanted do
+        assert_no_difference -> { MagicLink.count } do
+          assert_no_difference -> { Identity.count } do
             post session_path,
-              params: { email_address: "nonexistent-#{SecureRandom.hex(6)}@example.com" },
-              headers: http_basic_auth_headers("testname", "testpassword")
+              params: { email_address: "nonexistent-#{SecureRandom.hex(6)}@example.com" }
           end
         end
 
         assert_redirected_to session_magic_link_path
+      end
+    end
+  end
+
+  test "create with invalid email address" do
+    # Avoid Sentry exceptions when attackers try to stuff invalid emails. The browser performs form
+    # field validation that should normally prevent this from occurring, so I'm not worried about
+    # returning proper validation errors.
+    without_action_dispatch_exception_handling do
+      untenanted do
+        assert_no_difference -> { Identity.count } do
+          post session_path, params: { email_address: "not-a-valid-email" }
+        end
+
+        assert_response :unprocessable_entity
       end
     end
   end
@@ -47,9 +85,4 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       assert_not cookies[:session_token].present?
     end
   end
-
-  private
-    def http_basic_auth_headers(user, password)
-      { "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials(user, password) }
-    end
 end

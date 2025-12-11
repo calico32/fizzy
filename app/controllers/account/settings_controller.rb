@@ -3,7 +3,7 @@ class Account::SettingsController < ApplicationController
   before_action :set_account
 
   def show
-    @users = @account.users.active.alphabetically
+    @users = @account.users.active.alphabetically.includes(:identity)
   end
 
   def update

@@ -15,7 +15,7 @@ bin/dev                # Start development server (runs on port 3006)
 ```
 
 Development URL: http://fizzy.localhost:3006
-Login with: david@37signals.com (development fixtures), password will appear in the browser console
+Login with: david@example.com (development fixtures), password will appear in the browser console
 
 ### Testing
 ```bash
@@ -68,7 +68,7 @@ Fizzy uses **URL path-based multi-tenancy**:
 
 **Passwordless magic link authentication**:
 - Global `Identity` (email-based) can have `Users` in multiple Accounts
-- Users belong to an Account and have roles: admin, member, system
+- Users belong to an Account and have roles: owner, admin, member, system
 - Sessions managed via signed cookies
 - Board-level access control via `Access` records
 
@@ -84,7 +84,7 @@ Fizzy uses **URL path-based multi-tenancy**:
 
 **User** → Account membership
 - Belongs to Account and Identity
-- Has role (admin/member/system)
+- Has role (owner/admin/member/system)
 - Board access via explicit `Access` records
 
 **Board** → Primary organizational unit
@@ -137,43 +137,15 @@ Key recurring tasks (via `config/recurring.yml`):
 - Search records denormalized for performance
 - Models in `app/models/search/`
 
-## Production Observability
-
-Grafana MCP tools provide access to production metrics and logs for performance analysis.
-
-### Datasources
-| Name | UID | Use |
-|------|-----|-----|
-| Thanos (Prometheus) | `PC96415006F908B67` | Metrics, latencies |
-| Loki | `e38bdfea-097e-47fa-a7ab-774fd2487741` | Application logs |
-
-### Key Metrics
-- `rails_request_duration_seconds_bucket:rate1m:sum_by_app:quantiles{app="fizzy"}` - Request latency percentiles
-- `rails_request_total:rate1m:sum_by_controller_action{app="fizzy"}` - Request rates by endpoint
-- `fizzy_replica_wait_seconds` - Database replica consistency wait times
-
-### Loki Log Labels
-Query: `{service_namespace="fizzy", deployment_environment_name="production", service_name="rails"}`
-
-Useful fields: `event_duration_ms`, `performance_time_db_ms`, `performance_time_cpu_ms`, `rails_endpoint`, `rails_controller`
-
-### Instrumentation
-Yabeda-based metrics exported at `:9394/metrics`. Config in `config/initializers/yabeda.rb`.
+## Tools
 
 ### Chrome MCP (Local Dev)
+
 URL: `http://fizzy.localhost:3006`
-Login: david@37signals.com (passwordless magic link auth - check rails console for link)
+Login: david@example.com (passwordless magic link auth - check rails console for link)
 
 Use Chrome MCP tools to interact with the running dev app for UI testing and debugging.
 
-### Sentry Error Tracking
-Organization: `basecamp` | Project: `fizzy` | Region: `https://us.sentry.io`
-
-Use Sentry MCP tools to investigate production errors:
-- `search_issues` - Find grouped issues by natural language query
-- `get_issue_details` - Get full stacktrace and context for a specific issue
-- `analyze_issue_with_seer` - AI-powered root cause analysis with code fix suggestions
-
 ## Coding style
 
-Please read the separate file `STYLE.md` for some guidance on coding style.
+@STYLE.md

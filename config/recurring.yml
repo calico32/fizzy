@@ -1,3 +1,5 @@
+<% require_relative "../lib/fizzy" %>
+
 production: &production
   # Application functionality: notifications and summaries
   deliver_bundled_notifications:
@@ -25,11 +27,16 @@ production: &production
   cleanup_magic_links:
     command: "MagicLink.cleanup"
     schedule: every 4 hours
+  cleanup_exports:
+    command: "Account::Export.cleanup"
+    schedule: every hour at minute 20
 
+<% if Fizzy.saas? %>
   # Metrics
   yabeda_actioncable:
     command: "Yabeda::ActionCable.measure"
     schedule: every 60 seconds
+<% end %>
 
 beta: *production
 staging: *production

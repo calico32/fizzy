@@ -27,8 +27,14 @@
       }
     }
 
-    @media (prefers-color-scheme: dark) {
+    html[data-theme="dark"] & {
       --btn-hover-brightness: 1.25;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme]) & {
+        --btn-hover-brightness: 1.25;
+      }
     }
 
     &[disabled],
@@ -104,7 +110,7 @@
   }
 
   /* Make a normal button circular on mobile */
-  @media (max-width: 640px) {
+  @media (max-width: 639px) {
     .btn--circle-mobile {
       aspect-ratio: 1;
       padding: 0.5em;

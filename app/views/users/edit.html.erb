@@ -2,13 +2,7 @@
 
 <% content_for :header do %>
   <div class="header__actions header__actions--start">
-    <%= link_to user_path(@user), class: "btn btn--back borderless txt-medium", data: { controller: "hotkey", action: "keydown.left@document->hotkey#click" } do %>
-      <span class="overflow-ellipsis flex align-center">
-        <%= icon_tag "arrow-left" %>
-        <strong>Back to profile</strong>
-        <kbd class="txt-x-small margin-inline-start hide-on-touch">&larr;</kbd>
-      </span>
-    <% end %>
+    <%= back_link_to "profile", user_path(@user), "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
   </div>
 <% end %>
 
@@ -20,7 +14,7 @@
 
         <label class="avatar btn btn--circle input--file txt-xx-large center fill-white">
           <%= image_tag user_avatar_path(@user), aria: { hidden: "true" }, class: "avatar", size: 128, data: { upload_preview_target: "image" } %>
-          <%= form.file_field :avatar, id: "file", class: "input", accept: "image/*",
+          <%= form.file_field :avatar, id: "file", class: "input", accept: User::Avatar::ALLOWED_AVATAR_CONTENT_TYPES.join(","),
                 data: { upload_preview_target: "input", action: "upload-preview#previewImage" } %>
           <span class="for-screen-reader">Profile avatar for <%= @user.name %></span>
         </label>
@@ -44,6 +38,18 @@
           <%= link_to "Change email", new_user_email_address_path(user_id: Current.user.id), class: "btn btn--plain txt-link txt-small txt-nowrap" %>
         </div>
       </div>
+
+      <% if @user.errors.any? %>
+        <div class="margin-block-half txt-negative txt-small" style="text-align: left;">
+          <p class="margin-block-none font-weight-bold">Your changes couldn't be saved:</p>
+          <ul class="margin-block-none">
+            <% @user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
       <button type="submit" id="log_in" class="btn btn--reversed center" data-form-target="submit">
         <span>Save changes</span>
       </button>

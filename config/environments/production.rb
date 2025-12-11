@@ -3,6 +3,23 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Email provider Settings
+  #
+  # SMTP setting can be configured via environment variables.
+  # For other configuration options, consult the Action Mailer documentation.
+  if smtp_address = ENV["SMTP_ADDRESS"].presence
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: smtp_address,
+      port: ENV.fetch("SMTP_PORT", "587").to_i,
+      domain: ENV.fetch("SMTP_DOMAIN", nil),
+      user_name: ENV.fetch("SMTP_USERNAME", nil),
+      password: ENV.fetch("SMTP_PASSWORD", nil),
+      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain"),
+      enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true") == "true"
+    }
+  end
+
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
@@ -25,15 +42,18 @@ Rails.application.configure do
     "Cache-Control" => "public, max-age=#{1.year.to_i}"
   }
 
+  # Select Active Storage service via env var; default to local disk.
+  # Don't overwrite if it's already been set (e.g. by fizzy-saas)
+  if config.active_storage.service.blank?
+    config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "local").to_sym
+  end
+
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for Apache
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
-
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :purestorage
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
@@ -42,10 +62,10 @@ Rails.application.configure do
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
-  config.assume_ssl = true
+  config.assume_ssl = ENV.fetch("ASSUME_SSL", "true") == "true"
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
 
   # Log to STDOUT by default
   config.logger = ActiveSupport::Logger.new(STDOUT)
@@ -54,9 +74,6 @@ Rails.application.configure do
 
   # Suppress unstructured log lines
   config.log_level = :fatal
-
-  # Structured JSON logging
-  config.structured_logging.logger = ActiveSupport::Logger.new(STDOUT)
 
   # Prepend all log lines with the following tags.
   config.log_tags = [ :request_id ]
@@ -74,12 +91,6 @@ Rails.application.configure do
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
-
-  # Set host to be used by links generated in mailer and notification view templates.
-  config.action_controller.default_url_options = { host: "app.fizzy.do", protocol: "https" }
-  config.action_mailer.default_url_options     = { host: "app.fizzy.do", protocol: "https" }
-
-  config.action_mailer.smtp_settings = { domain: "app.fizzy.do", address: "smtp-outbound", port: 25, enable_starttls_auto: false }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

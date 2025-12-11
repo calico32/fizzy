@@ -1,34 +1,63 @@
+# Name of this app
 service: fizzy
-image: basecamp/fizzy
-asset_path: /rails/public/assets
+image: fizzy
 
+
+#-- About your deployment --#
+
+# Where to deploy fizzy
 servers:
-  jobs:
-    cmd: bin/jobs
+  web:
+    - fizzy.example.com  # Set your server name here
 
-volumes:
-  - fizzy:/rails/storage
+# How you connect to your server
+ssh:
+  user: root  # If you use a different username to SSH to your server, specify it here
 
+# Automatic SSL
 proxy:
-  ssl: true
+  ssl: true                # Set this to false if you *don't* want SSL
+  host: fizzy.example.com  # Set your server name here to use automatic SSL
 
-registry:
-  server: registry.37signals.com
-  username: robot$harbor-bot
-  password:
-    - BASECAMP_REGISTRY_PASSWORD
-
-builder:
-  arch: amd64
-  secrets:
-    - GITHUB_TOKEN
-  remote: ssh://app@docker-builder-102
-  local: <%= ENV.fetch("KAMAL_BUILDER_LOCAL", "true") %>
-
+# Your application configuration (secrets come from .kamal/secrets).
 env:
   secret:
-    - RAILS_MASTER_KEY
+    - SECRET_KEY_BASE
+    - VAPID_PUBLIC_KEY
+    - VAPID_PRIVATE_KEY
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+  clear:
+    MAILER_FROM_ADDRESS: support@example.com # The email "from" address that Fizzy sends email from
+    SMTP_ADDRESS: mail.example.com # The SMTP server you'll use to send email
+    MULTI_TENANT: false # Set to false to enable single-tenant mode
+    SOLID_QUEUE_IN_PUMA: true # Run background jobs in the app container
 
+
+#-- General configuration --#
+
+# Use a local registry to deploy
+registry:
+  server: localhost:5555
+
+# Handy aliases for interacting with your deployment. For eaxmple: `bin/kamal console` will connect to a
+# Rails console in production.
 aliases:
-  console: app exec -i --reuse "bin/rails console"
-  ssh: app exec -i --reuse /bin/bash
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+# Use a persistent storage volume for sqlite database files and local Active Storage files.
+# Recommended to change this to a mounted volume path that is backed up off server.
+volumes:
+  - "fizzy_storage:/rails/storage"
+
+# Bridge fingerprinted assets, like JS and CSS, between versions to avoid
+# hitting 404 on in-flight requests. Combines all files from new and old
+# version inside the asset_path.
+asset_path: /rails/public/assets
+
+# Configure the image builder.
+builder:
+  arch: amd64

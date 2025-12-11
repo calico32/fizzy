@@ -161,7 +161,7 @@ export default class extends Controller {
   #relayNavigationToParentNavigableList(event) {
     const parentController = this.#parentNavigableListController
     if (parentController) {
-      parentController.element.focus({ preventScroll: !this.autoScrollValue })
+      parentController.element.focus({ preventScroll: !parentController.autoScrollValue })
       parentController.navigate(event)
     }
   }
@@ -245,6 +245,9 @@ export default class extends Controller {
       }
     },
     Enter(event) {
+      // Skip handling during IME composition (e.g., Japanese input)
+      if (event.isComposing) { return }
+
       if (event.shiftKey) {
         this.#toggleCurrentItem(event)
       } else {

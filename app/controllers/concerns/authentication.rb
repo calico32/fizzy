@@ -4,9 +4,10 @@ module Authentication
   included do
     before_action :require_account # Checking and setting account must happen first
     before_action :require_authentication
+    after_action :ensure_development_magic_link_not_leaked
     helper_method :authenticated?
 
-    etag { Current.session.id if authenticated? }
+    etag { Current.identity.id if authenticated? }
 
     include LoginHelper
   end
@@ -31,17 +32,17 @@ module Authentication
 
   private
     def authenticated?
-      Current.session.present?
+      Current.identity.present?
     end
 
     def require_account
       unless Current.account.present?
-        redirect_to session_menu_url(script_name: nil)
+        redirect_to main_app.session_menu_url(script_name: nil)
       end
     end
 
     def require_authentication
-      resume_session || request_authentication
+      resume_session || authenticate_by_bearer_token || request_authentication
     end
 
     def resume_session
@@ -52,6 +53,16 @@ module Authentication
 
     def find_session_by_cookie
       Session.find_signed(cookies.signed[:session_token])
+    end
+
+    def authenticate_by_bearer_token
+      if request.authorization.to_s.include?("Bearer")
+        authenticate_or_request_with_http_token do |token|
+          if identity = Identity.find_by_permissable_access_token(token, method: request.method)
+            Current.identity = identity
+          end
+        end
+      end
     end
 
     def request_authentication
@@ -67,11 +78,11 @@ module Authentication
     end
 
     def redirect_authenticated_user
-      redirect_to root_url if authenticated?
+      redirect_to main_app.root_url if authenticated?
     end
 
     def redirect_tenanted_request
-      redirect_to root_url if Current.account.present?
+      redirect_to main_app.root_url if Current.account.present?
     end
 
     def start_new_session_for(identity)
@@ -81,7 +92,6 @@ module Authentication
     end
 
     def set_current_session(session)
-      logger.struct "  Authorized Identity##{session.identity.id}", authentication: { identity: { id: session.identity.id } }
       Current.session = session
       cookies.signed.permanent[:session_token] = { value: session.signed_id, httponly: true, same_site: :lax }
     end
@@ -89,5 +99,23 @@ module Authentication
     def terminate_session
       Current.session.destroy
       cookies.delete(:session_token)
+    end
+
+    def ensure_development_magic_link_not_leaked
+      unless Rails.env.development?
+        raise "Leaking magic link via flash in #{Rails.env}?" if flash[:magic_link_code].present?
+      end
+    end
+
+    def redirect_to_session_magic_link(magic_link, return_to: nil)
+      serve_development_magic_link(magic_link)
+      session[:return_to_after_authenticating] = return_to if return_to
+      redirect_to main_app.session_magic_link_url(script_name: nil)
+    end
+
+    def serve_development_magic_link(magic_link)
+      if Rails.env.development?
+        flash[:magic_link_code] = magic_link&.code
+      end
     end
 end

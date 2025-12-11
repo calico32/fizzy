@@ -8,6 +8,14 @@ app_root="$(
 )"
 export PATH="$app_root/bin:$PATH"
 
+if [ -e tmp/saas.txt ]; then
+  export SAAS=1
+fi
+
+if [ -n "$SAAS" ]; then
+  export BUNDLE_GEMFILE="Gemfile.saas"
+fi
+
 # Install gum if needed
 if ! command -v gum &>/dev/null; then
   echo
@@ -18,6 +26,36 @@ if ! command -v gum &>/dev/null; then
     brew install gum
   else
     echo "Please install gum: https://github.com/charmbracelet/gum"
+    exit 1
+  fi
+  echo
+fi
+
+# Install mise if needed
+if ! command -v mise &>/dev/null; then
+  echo
+  echo "▸ Installing mise"
+  if command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm mise
+  elif command -v brew &>/dev/null; then
+    brew install mise
+  else
+    echo "Please install mise: https://mise.jdx.dev/installing-mise.html#installation-methods"
+    exit 1
+  fi
+  echo
+fi
+
+# Install gh if needed
+if ! command -v gh &>/dev/null; then
+  echo
+  echo "▸ Installing GitHub CLI"
+  if command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm gh
+  elif command -v brew &>/dev/null; then
+    brew install gh
+  else
+    echo "Please install GitHub CLI: https://github.com/cli/cli#installation"
     exit 1
   fi
   echo
@@ -50,34 +88,61 @@ needs_seeding() {
   fi
 }
 
+oss_mysql_setup() {
+  if ! nc -z localhost 3306 2>/dev/null; then
+    if docker ps -aq -f name=fizzy-mysql | grep -q .; then
+      step "Starting MySQL" docker start fizzy-mysql
+    else
+      step "Setting up MySQL" bash -c '
+        docker pull mysql:8.4
+        docker run -d \
+          --name fizzy-mysql \
+          -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+          -p 3306:3306 \
+          mysql:8.4
+        echo "MySQL is starting… (it may take a few seconds)"
+      '
+    fi
+  fi
+}
+
 echo
 gum style --foreground 153 "   ˚ ∘             ∘ ˚   "
 gum style --foreground 111 --bold "  ∘˚˳°∘°  𝒻𝒾𝓏𝓏𝓎  °∘°˳˚∘  "
 echo
 
 step "Installing Ruby" mise install --yes
-eval "$(mise hook-env)"
+eval "$(mise hook-env -s bash)"
 
 if which pacman >/dev/null 2>&1; then
-  packages=(imagemagick mariadb-libs openslide libvips)
+  packages=(imagemagick mariadb-libs openslide libvips gitleaks)
   if ! pacman -Q "${packages[@]}" >/dev/null 2>&1; then
     step "Installing packages" sudo pacman -S --noconfirm --needed "${packages[@]}"
   fi
+elif which brew >/dev/null 2>&1; then
+  packages=(imagemagick openslide vips gitleaks)
+  missing_packages=()
+  for pkg in "${packages[@]}"; do
+    if ! brew list "$pkg" &>/dev/null; then
+      missing_packages+=("$pkg")
+    fi
+  done
+  if [ ${#missing_packages[@]} -gt 0 ]; then
+    step "Installing packages" brew install "${missing_packages[@]}"
+  fi
 fi
-
-# Ensure gh-signoff is installed and up to date
-step "Set up gh-signoff" bash -c "gh extension install basecamp/gh-signoff || gh extension upgrade basecamp/gh-signoff"
 
 bundle config set --local auto_install true
 step "Installing RubyGems" bundle install
 
-if [ -e tmp/minio-dev.txt ]; then
-  step "Starting Docker services" bash -c "[ -d ~/Work/basecamp/docker-dev ] && git -C ~/Work/basecamp/docker-dev pull || gh repo clone basecamp/docker-dev ~/Work/basecamp/docker-dev && ~/Work/basecamp/docker-dev/setup minio"
-
-  step "Configuring MinIO" bin/minio-setup
+if [ -n "$SAAS" ]; then
+  saas_setup=$(bundle show fizzy-saas)/bin/setup
+  source "$saas_setup"
+else
+  if [ "$DATABASE_ADAPTER" = "mysql" ]; then
+    oss_mysql_setup
+  fi
 fi
-
-step "Starting mysql" bash -c "[ -d ~/Work/basecamp/docker-dev ] && git -C ~/Work/basecamp/docker-dev pull || gh repo clone basecamp/docker-dev ~/Work/basecamp/docker-dev && ~/Work/basecamp/docker-dev/setup mysql80"
 
 if [[ $* == *--reset* ]]; then
   step "Resetting the database" rails db:reset

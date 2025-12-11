@@ -300,9 +300,16 @@
         border-radius: 0;
       }
 
-      @media (prefers-color-scheme: dark) {
+      html[data-theme="dark"] & {
         box-shadow: 0 0 0 1px var(--color-ink-lighter);
       }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) & {
+          box-shadow: 0 0 0 1px var(--color-ink-lighter);
+        }
+      }
+
     }
 
     .card__background {
@@ -404,6 +411,10 @@
         &:hover {
           opacity: 1;
         }
+      }
+
+      [aria-busy] & {
+        position: absolute !important;
       }
     }
 

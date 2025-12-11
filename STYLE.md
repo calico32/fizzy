@@ -126,7 +126,7 @@ end
 If a module only has private methods, we mark it `private` at the top and add an extra new line after but don't indent.
 
 ```ruby
-class SomeModule
+module SomeModule
   private
   
   def some_private_method
@@ -135,54 +135,51 @@ class SomeModule
 end
 ```
 
-## CRUD operations from controllers
+## CRUD controllers
 
-In general, we favor a vanilla Rails approach to CRUD operations. We create and update models from Rails controllers passing the parameters directly to the model constructor or update method. We do not use services or form objects to handle these operations.
-
-There are exceptional scenarios where we need to perform more complex operations, and we use form objects or higher-level service methods to handle them. We use the same pattern for both creations and updates.
-
-Related to this, we prefer to avoid [nested attributes](https://api.rubyonrails.org/classes/ActiveRecord/NestedAttributes/ClassMethods.html). If you find yourself wanting to use `accepts_nested_attributes_for`, that's a good smell that you might want to consider using a form object instead. 
-
-As an example, you can check how we create and update messages in HEY's: `MessagesController`:
+We model web endpoints as CRUD operations on resources (REST). When an action doesn't map cleanly to a standard CRUD verb, we introduce a new resource rather than adding custom actions.
 
 ```ruby
-class MessagesController < ApplicationController
+# Bad
+resources :cards do
+  post :close
+  post :reopen
+end
+
+# Good
+resources :cards do
+  resource :closure
+end
+```
+
+## Controller and model interactions
+
+In general, we favor a [vanilla Rails](https://dev.37signals.com/vanilla-rails-is-plenty/) approach with thin controllers directly invoking a rich domain model. We don't use services or other artifacts to connect the two.
+
+Invoking plain Active Record operations is totally fine:
+
+```ruby
+class Cards::CommentsController < ApplicationController
   def create
-    @entry = Entry.enter \
-      new_message,
-      on: new_topic,
-      status: :drafted,
-      address: entry_addressed_param,
-      scheduled_delivery_at: entry_scheduled_delivery_at_param,
-      scheduled_bubble_up_on: entry_scheduled_bubble_up_on_param
-
-    respond_to_saved_entry @entry
-  end
-
-  def update
-    previously_scheduled = @entry.scheduled_delivery
-
-    @entry.revise \
-      message_params,
-      status: :drafted,
-      is_delivery_imminent: !entry_status_param.drafted?,
-      address: entry_addressed_param,
-      scheduled_delivery_at: entry_scheduled_delivery_at_param,
-      scheduled_bubble_up_on: entry_scheduled_bubble_up_on_param
-
-    respond_to_saved_entry(@entry, previously_scheduled: previously_scheduled)
+    @comment = @card.comments.create!(comment_params)
   end
 end
+```
 
-class Entry < ApplicationRecord
-  def self.enter(*args, **kwargs)
-    Entry::Enter.new(*args, **kwargs).perform
-  end
+For more complex behavior, we prefer clear, intention-revealing model APIs that controllers call directly:
 
-  def revise(*args, **kwargs)
-    Entry::Revise.new(self, *args, **kwargs).perform
+```ruby
+class Cards::GoldnessesController < ApplicationController
+  def create
+    @card.gild
   end
 end
+```
+
+When justified, it is fine to use services or form objects, but don't treat those as special artifacts:
+
+```ruby
+Signup.new(email_address: email_address).create_identity
 ```
 
 ## Run async operations in jobs

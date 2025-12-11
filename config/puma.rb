@@ -7,15 +7,20 @@ pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
-# Run Solid Queue with Puma
-plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
+# Run Solid Queue with Puma by default.
+# Disabled when running fizzy-saas or via SOLID_QUEUE_IN_PUMA=false.
+unless Fizzy.saas? || ENV["SOLID_QUEUE_IN_PUMA"] == "false"
+  plugin :solid_queue
+end
 
-# Expose Prometheus metrics at http://0.0.0.0:9394/metrics.
+# Expose Prometheus metrics at http://0.0.0.0:9394/metrics (SaaS only).
 # In dev, overridden to http://127.0.0.1:9306/metrics in .mise.toml.
-control_uri = Rails.env.local? ? "unix://tmp/pumactl.sock" : "auto"
-activate_control_app control_uri, no_token: true
-plugin :yabeda
-plugin :yabeda_prometheus
+if Fizzy.saas?
+  control_uri = Rails.env.local? ? "unix://tmp/pumactl.sock" : "auto"
+  activate_control_app control_uri, no_token: true
+  plugin :yabeda
+  plugin :yabeda_prometheus
+end
 
 if !Rails.env.local?
   # Because we expect fewer I/O waits than Rails apps that connect to the
@@ -23,7 +28,7 @@ if !Rails.env.local?
   # worker per CPU, 1 thread per worker and tune it from there.
   #
   # https://edgeguides.rubyonrails.org/tuning_performance_for_deployment.html#puma
-  workers Concurrent.physical_processor_count
+  workers Integer(ENV.fetch("WEB_CONCURRENCY") { Concurrent.physical_processor_count })
   threads 1, 1
 
   # Tell the Ruby VM that we're finished booting up.

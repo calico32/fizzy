@@ -1,6 +1,4 @@
 class Admin::StatsController < AdminController
-  disallow_account_scope
-
   layout "public"
 
   def show
@@ -16,5 +14,7 @@ class Admin::StatsController < AdminController
       .where("cards_count > 0")
       .order(cards_count: :desc)
       .limit(20)
+
+    @recent_accounts = Account.order(created_at: :desc).limit(10)
   end
 end
