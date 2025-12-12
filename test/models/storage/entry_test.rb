@@ -112,13 +112,13 @@ class Storage::EntryTest < ActiveSupport::TestCase
 
   test "record! does not enqueue job when account is deleted" do
     # The graceful handling is that find_by returns nil, so no job is enqueued
-    # for a non-existent account. We can't test with a fake ID due to FK constraints,
-    # but we can verify the find_by behavior by stubbing.
+    # for a non-existent account. Pass account_id only (not object) to simulate
+    # after_destroy_commit callbacks where only IDs are available.
     Account.stubs(:find_by).returns(nil)
 
     assert_no_enqueued_jobs only: Storage::MaterializeJob do
       Storage::Entry.record \
-        account: @account,
+        account_id: @account.id,
         delta: 1024,
         operation: "attach"
     end
@@ -127,10 +127,10 @@ class Storage::EntryTest < ActiveSupport::TestCase
   test "record! does not enqueue board job when board is deleted" do
     Board.stubs(:find_by).returns(nil)
 
-    # Account job still enqueued, but board job is not
+    # Account job still enqueued (object passed), but board job is not (ID only)
     entry = Storage::Entry.record \
       account: @account,
-      board: @board,
+      board_id: @board.id,
       delta: 1024,
       operation: "attach"
 
