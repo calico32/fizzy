@@ -26,9 +26,7 @@ class SessionsController < ApplicationController
       identity.send_magic_link
     else
       signup = Signup.new(email_address: email_address)
-      if signup.valid?(:identity_creation)
-        signup.create_identity if Account.accepting_signups?
-      end
+      signup.create_identity if signup.valid?(:identity_creation) && Account.accepting_signups?
     end
   end
 
