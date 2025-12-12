@@ -11,7 +11,7 @@ class Sessions::MagicLinksController < ApplicationController
 
   def create
     if magic_link = MagicLink.consume(code)
-      authenticate_with magic_link
+      respond_to_valid_code_from magic_link
     else
       respond_to_invalid_code
     end
@@ -42,7 +42,7 @@ class Sessions::MagicLinksController < ApplicationController
 
       respond_to do |format|
         format.html do
-          redirect_to after_sign_in_url(magic_link)
+          authenticate_with magic_link
         end
 
         format.json do
